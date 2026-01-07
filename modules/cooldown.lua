@@ -6,17 +6,15 @@ pfUI:RegisterModule("cooldown", "vanilla:tbc", function ()
   local hourcolor   = {strsplit(",", C.appearance.cd.hourcolor)}
   local daycolor    = {strsplit(",", C.appearance.cd.daycolor)}
 
-  local parent, parent_name
+  local parent
   local function pfCooldownOnUpdate()
     parent = this:GetParent()
-    if not parent then this:Hide() end
-    parent_name = parent:GetName()
+    if not parent then this:Hide() return end
 
-    -- avoid to set cooldowns on invalid frames
-    if parent_name and _G[parent_name .. "Cooldown"] then
-      if not _G[parent_name .. "Cooldown"]:IsShown() then
-        this:Hide()
-      end
+    -- avoid to set cooldowns on invalid frames (use cached reference)
+    if this.cooldownRef and not this.cooldownRef:IsShown() then
+      this:Hide()
+      return
     end
 
     -- only run every 0.1 seconds from here on
@@ -79,6 +77,13 @@ pfUI:RegisterModule("cooldown", "vanilla:tbc", function ()
 
     cooldown.pfCooldownText.text:SetFont(pfUI.media[C.appearance.cd.font], size, "OUTLINE")
     cooldown.pfCooldownText.text:SetPoint("CENTER", cooldown.pfCooldownText, "CENTER", 0, 0)
+
+    -- cache cooldown frame reference to avoid string concatenation in OnUpdate
+    local parent_name = cooldown:GetParent() and cooldown:GetParent():GetName()
+    if parent_name then
+      cooldown.pfCooldownText.cooldownRef = _G[parent_name .. "Cooldown"]
+    end
+
     cooldown.pfCooldownText:SetScript("OnUpdate", pfCooldownOnUpdate)
   end
 
