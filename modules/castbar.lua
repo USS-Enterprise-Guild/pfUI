@@ -4,6 +4,10 @@ pfUI:RegisterModule("castbar", "vanilla:tbc", function ()
   local rawborder, default_border = GetBorderSize("unitframes")
   local cbtexture = pfUI.media[C.appearance.castbar.texture]
 
+  -- pre-cache colors to avoid strsplit in hot path
+  local castcolor = {strsplit(",", C.appearance.castbar.castbarcolor)}
+  local channelcolor = {strsplit(",", C.appearance.castbar.channelcolor)}
+
   local function CreateCastbar(name, parent, unitstr, unitname)
     local cb = CreateFrame("Frame", name, parent or UIParent)
 
@@ -110,7 +114,7 @@ pfUI:RegisterModule("castbar", "vanilla:tbc", function ()
         local rank = this.showrank and nameSubtext and nameSubtext ~= "" and string.format("|cffaaffcc[%s]|r", nameSubtext) or ""
 
         if this.endTime ~= endTime then
-          this.bar:SetStatusBarColor(strsplit(",", C.appearance.castbar[(channel and "channelcolor" or "castbarcolor")]))
+          this.bar:SetStatusBarColor(unpack(channel and channelcolor or castcolor))
           this.bar:SetMinMaxValues(0, duration / 1000)
           this.bar.left:SetText(spellname .. rank)
           this.fadeout = nil
