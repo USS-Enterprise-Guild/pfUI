@@ -1216,6 +1216,14 @@ end
 -- 'remaining'   the time in seconds that should be converted
 -- return        a colored string including a time unit (m/h/d)
 local color_day, color_hour, color_minute, color_low, color_normal
+-- cache tables for common time strings to reduce GC pressure
+local time_cache_low = {}      -- integer seconds 0-5
+local time_cache_normal = {}   -- integer seconds 6-99
+local time_cache_ms = {}       -- milliseconds 0.0-5.0
+local time_cache_minute = {}   -- minutes 2-99
+local time_cache_hour = {}     -- hours 2-99
+local time_cache_day = {}      -- days
+
 function pfUI.api.GetColoredTimeString(remaining)
   if not remaining then return "" end
 
@@ -1226,7 +1234,11 @@ function pfUI.api.GetColoredTimeString(remaining)
       color_day = pfUI.api.rgbhex(r,g,b)
     end
 
-    return color_day .. round(remaining / 86400) .. "|rd"
+    local rounded = round(remaining / 86400)
+    if not time_cache_day[rounded] then
+      time_cache_day[rounded] = color_day .. rounded .. "|rd"
+    end
+    return time_cache_day[rounded]
 
   -- Show hours if remaining is > 99 Minutes (99 * 60)
   elseif remaining > 5940 then
@@ -1235,7 +1247,11 @@ function pfUI.api.GetColoredTimeString(remaining)
       color_hour = pfUI.api.rgbhex(r,g,b)
     end
 
-    return color_hour .. round(remaining / 3600) .. "|rh"
+    local rounded = round(remaining / 3600)
+    if not time_cache_hour[rounded] then
+      time_cache_hour[rounded] = color_hour .. rounded .. "|rh"
+    end
+    return time_cache_hour[rounded]
 
   -- Show minutes if remaining is > 99 Seconds (99)
   elseif remaining > 99 then
@@ -1244,7 +1260,11 @@ function pfUI.api.GetColoredTimeString(remaining)
       color_minute = pfUI.api.rgbhex(r,g,b)
     end
 
-    return color_minute .. round(remaining / 60) .. "|rm"
+    local rounded = round(remaining / 60)
+    if not time_cache_minute[rounded] then
+      time_cache_minute[rounded] = color_minute .. rounded .. "|rm"
+    end
+    return time_cache_minute[rounded]
 
   -- Show milliseconds on low
   elseif remaining <= 5 and pfUI_config.appearance.cd.milliseconds == "1" then
@@ -1253,7 +1273,11 @@ function pfUI.api.GetColoredTimeString(remaining)
       color_low = pfUI.api.rgbhex(r,g,b)
     end
 
-    return color_low .. string.format("%.1f", round(remaining,1))
+    local rounded = round(remaining, 1)
+    if not time_cache_ms[rounded] then
+      time_cache_ms[rounded] = color_low .. string.format("%.1f", rounded)
+    end
+    return time_cache_ms[rounded]
 
   -- Show seconds on low
   elseif remaining <= 5 then
@@ -1262,7 +1286,11 @@ function pfUI.api.GetColoredTimeString(remaining)
       color_low = pfUI.api.rgbhex(r,g,b)
     end
 
-    return color_low .. round(remaining)
+    local rounded = round(remaining)
+    if not time_cache_low[rounded] then
+      time_cache_low[rounded] = color_low .. rounded
+    end
+    return time_cache_low[rounded]
 
   -- Show seconds on normal
   elseif remaining >= 0 then
@@ -1270,7 +1298,12 @@ function pfUI.api.GetColoredTimeString(remaining)
       local r, g, b, a = pfUI.api.GetStringColor(C.appearance.cd.normalcolor)
       color_normal = pfUI.api.rgbhex(r,g,b)
     end
-    return color_normal .. round(remaining)
+
+    local rounded = round(remaining)
+    if not time_cache_normal[rounded] then
+      time_cache_normal[rounded] = color_normal .. rounded
+    end
+    return time_cache_normal[rounded]
 
   -- Return empty
   else
