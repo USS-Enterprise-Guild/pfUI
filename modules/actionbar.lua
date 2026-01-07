@@ -769,27 +769,20 @@ pfUI:RegisterModule("actionbar", "vanilla:tbc", function ()
       end
     end
 
-    -- run cached usable usable actions
-    if eventcache["ACTIONBAR_UPDATE_USABLE"] then
-      eventcache["ACTIONBAR_UPDATE_USABLE"] = nil
-      for id, button in pairs(buttoncache) do
-        ButtonUsableUpdate(button)
-      end
-    end
+    -- cache and clear event flags to allow single iteration
+    local update_usable = eventcache["ACTIONBAR_UPDATE_USABLE"]
+    local update_cooldown = eventcache["ACTIONBAR_UPDATE_COOLDOWN"]
+    local update_state = eventcache["ACTIONBAR_UPDATE_STATE"]
+    eventcache["ACTIONBAR_UPDATE_USABLE"] = nil
+    eventcache["ACTIONBAR_UPDATE_COOLDOWN"] = nil
+    eventcache["ACTIONBAR_UPDATE_STATE"] = nil
 
-    -- run cached cooldown events
-    if eventcache["ACTIONBAR_UPDATE_COOLDOWN"] then
-      eventcache["ACTIONBAR_UPDATE_COOLDOWN"] = nil
+    -- single iteration for all event-driven updates (reduces iterator allocations)
+    if update_usable or update_cooldown or update_state then
       for id, button in pairs(buttoncache) do
-        ButtonCooldownUpdate(button)
-      end
-    end
-
-    -- run cached action state events
-    if eventcache["ACTIONBAR_UPDATE_STATE"] then
-      eventcache["ACTIONBAR_UPDATE_STATE"] = nil
-      for id, button in pairs(buttoncache) do
-        ButtonIsActiveUpdate(button)
+        if update_usable then ButtonUsableUpdate(button) end
+        if update_cooldown then ButtonCooldownUpdate(button) end
+        if update_state then ButtonIsActiveUpdate(button) end
       end
     end
 
