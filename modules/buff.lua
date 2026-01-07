@@ -152,36 +152,33 @@ pfUI:RegisterModule("buff", "vanilla:tbc", function ()
         if IsShiftKeyDown() then
           local texture = GetPlayerBuffTexture(this.bid)
 
-          local playerlist = ""
-          local first = true
+          -- use table.insert + table.concat to avoid O(n²) string allocations
+          local playerlist = {}
 
           if UnitInRaid("player") then
             for i=1,40 do
               local unitstr = "raid" .. i
               if not UnitHasBuff(unitstr, texture) and UnitName(unitstr) then
-                playerlist = playerlist .. ( not first and ", " or "") .. GetUnitColor(unitstr) .. UnitName(unitstr) .. "|r"
-                first = nil
+                table.insert(playerlist, GetUnitColor(unitstr) .. UnitName(unitstr) .. "|r")
               end
             end
           else
             if not UnitHasBuff("player", texture) then
-              playerlist = playerlist .. ( not first and ", " or "") .. GetUnitColor("player") .. UnitName("player") .. "|r"
-              first = nil
+              table.insert(playerlist, GetUnitColor("player") .. UnitName("player") .. "|r")
             end
 
             for i=1,4 do
               local unitstr = "party" .. i
               if not UnitHasBuff(unitstr, texture) and UnitName(unitstr) then
-                playerlist = playerlist .. ( not first and ", " or "") .. GetUnitColor(unitstr) .. UnitName(unitstr) .. "|r"
-                first = nil
+                table.insert(playerlist, GetUnitColor(unitstr) .. UnitName(unitstr) .. "|r")
               end
             end
           end
 
-          if strlen(playerlist) > 0 then
+          if table.getn(playerlist) > 0 then
             GameTooltip:AddLine(" ")
             GameTooltip:AddLine(T["Unbuffed"] .. ":", .3, 1, .8)
-            GameTooltip:AddLine(playerlist,1,1,1,1)
+            GameTooltip:AddLine(table.concat(playerlist, ", "),1,1,1,1)
             GameTooltip:Show()
           end
         end
