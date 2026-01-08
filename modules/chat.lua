@@ -144,13 +144,8 @@ pfUI:RegisterModule("chat", "vanilla:tbc", function ()
     local newtext = string.format(formatter,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)
 
     -- check the last capture index for consecutive trailing dots (invalid top level domain)
-    local invalidtld
-    for _, arg in pairs({a10,a9,a8,a7,a6,a5,a4,a3,a2,a1}) do
-      if arg then
-        invalidtld = string.find(arg, "(%.%.)$")
-        break
-      end
-    end
+    local lastArg = a10 or a9 or a8 or a7 or a6 or a5 or a4 or a3 or a2 or a1
+    local invalidtld = lastArg and string.find(lastArg, "(%.%.)$")
 
     if (invalidtld) then return newtext end
     if formatter == self.URLPattern.EMAIL.fm then -- email parser
