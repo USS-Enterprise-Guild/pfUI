@@ -27,6 +27,12 @@ local nextEventTime = nil  -- track next expiration to avoid per-frame iteration
 local senderToHealTargets = {}
 local senderToRessTargets = {}
 
+-- reverse lookup tables to avoid nested pairs() iterations in HealStop/HealDelay/RessStop
+-- senderToHealTargets[sender] = {target1 = true, target2 = true, ...}
+-- senderToRessTargets[sender] = {target1 = true, target2 = true, ...}
+local senderToHealTargets = {}
+local senderToRessTargets = {}
+
 local PRAYER_OF_HEALING
 do -- Prayer of Healing
   local locales = {
