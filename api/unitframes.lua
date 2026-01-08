@@ -159,8 +159,14 @@ end
 local visibilityscan = CreateFrame("Frame", "pfUnitFrameVisibility", UIParent)
 visibilityscan.frames = {}
 visibilityscan:SetScript("OnUpdate", function()
-  if ( this.limit or 1) > GetTime() then return else this.limit = GetTime() + .2 end
-  for frame in pairs(this.frames) do frame:UpdateVisibility() end
+  local now = GetTime()
+  if (this.limit or 0) > now then return end
+  this.limit = now + .2
+  local frame = next(this.frames)
+  while frame do
+    frame:UpdateVisibility()
+    frame = next(this.frames, frame)
+  end
 end)
 
 local aggrodata = { }
