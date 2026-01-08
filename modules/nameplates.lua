@@ -43,6 +43,12 @@ pfUI:RegisterModule("nameplates", "vanilla:tbc", function ()
   -- cache guid.."target" strings to avoid allocation in hot path
   local guidTargetCache = {}
 
+  -- pre-build lowercase critter lookup table for O(1) checks
+  local critterLookup = {}
+  for _, critter in ipairs(L["critters"] or {}) do
+    critterLookup[strlower(critter)] = true
+  end
+
   local function GetCombatStateColor(guid)
     local target = guidTargetCache[guid]
     if not target then
@@ -104,8 +110,11 @@ pfUI:RegisterModule("nameplates", "vanilla:tbc", function ()
 
   local function TotemPlate(name)
     if C.nameplates.totemicons == "1" then
-      for totem, icon in pairs(L["totems"]) do
-        if string.find(name, totem) then return icon end
+      local totems = L["totems"]
+      local totem, icon = next(totems)
+      while totem do
+        if strfind(name, totem) then return icon end
+        totem, icon = next(totems, totem)
       end
     end
   end
@@ -127,12 +136,13 @@ pfUI:RegisterModule("nameplates", "vanilla:tbc", function ()
     elseif C.nameplates.friendlyplayer == "1" and unittype == "FRIENDLY_PLAYER" then
       return true
     elseif C.nameplates.critters == "1" and unittype == "NEUTRAL_NPC" then
-      for i, critter in pairs(L["critters"]) do
-        if string.lower(name) == string.lower(critter) then return true end
-      end
+      if critterLookup[strlower(name)] then return true end
     elseif C.nameplates.totems == "1" then
-      for totem in pairs(L["totems"]) do
-        if string.find(name, totem) then return true end
+      local totems = L["totems"]
+      local totem = next(totems)
+      while totem do
+        if strfind(name, totem) then return true end
+        totem = next(totems, totem)
       end
     end
 
