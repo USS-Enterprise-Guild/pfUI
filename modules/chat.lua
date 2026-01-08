@@ -141,7 +141,23 @@ pfUI:RegisterModule("chat", "vanilla:tbc", function ()
   -- url copy dialog
   function pfUI.chat:FormatLink(formatter,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)
     if not (formatter and a1) then return end
-    local newtext = string.format(formatter,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)
+    local newtext
+    local P = self.URLPattern
+    if formatter == P.WWW.fm or formatter == P.URL.fm then
+      newtext = a1 .. '.' .. a2 .. '.' .. a3
+    elseif formatter == P.PROTOCOL.fm then
+      newtext = a1 .. '://' .. a2
+    elseif formatter == P.EMAIL.fm then
+      newtext = a1 .. '@' .. a2 .. a3 .. a4
+    elseif formatter == P.PORTIP.fm then
+      newtext = a1 .. '.' .. a2 .. '.' .. a3 .. '.' .. a4 .. ':' .. a5
+    elseif formatter == P.IP.fm then
+      newtext = a1 .. '.' .. a2 .. '.' .. a3 .. '.' .. a4
+    elseif formatter == P.SHORTURL.fm then
+      newtext = a1 .. '.' .. a2 .. '/' .. a3
+    elseif formatter == P.URLIP.fm then
+      newtext = a1 .. '.' .. a2 .. '.' .. a3 .. ':' .. a4
+    end
 
     -- check the last capture index for consecutive trailing dots (invalid top level domain)
     local lastArg = a10 or a9 or a8 or a7 or a6 or a5 or a4 or a3 or a2 or a1
