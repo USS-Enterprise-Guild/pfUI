@@ -68,7 +68,9 @@ pfUI:RegisterModule("panel", "vanilla:tbc", function()
         end
       end
       widget:SetScript("OnUpdate",function()
-        if ( this.tick or 1) > GetTime() then return else this.tick = GetTime() + 1 end
+        local now = GetTime()
+        if (this.tick or 0) > now then return end
+        this.tick = now + 1
 
         local h, m = GetGameTime()
         local noon = "AM"
@@ -208,7 +210,9 @@ pfUI:RegisterModule("panel", "vanilla:tbc", function()
         end
       end
       widget:SetScript("OnUpdate",function()
-        if ( this.tick or 1) > GetTime() then return else this.tick = GetTime() + 1 end
+        local now = GetTime()
+        if (this.tick or 0) > now then return end
+        this.tick = now + 1
 
         fps = floor(GetFramerate())
         _, _, lag = GetNetStats()
