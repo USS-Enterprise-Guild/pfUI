@@ -255,8 +255,10 @@ pfUI:RegisterModule("buffwatch", "vanilla:tbc", function ()
     table.sort(frame.buffs, frame.buffcmp)
 
     -- create a buff bar for each below threshold
+    -- use numeric loop since frame.buffs is indexed 1-32 (avoids pairs iterator allocation)
     local bar = 1
-    for id, data in pairs(frame.buffs) do
+    for id = 1, 32 do
+      local data = frame.buffs[id]
       if data[1] and ((data[1] ~= 0 and data[1] < frame.threshold) or frame.threshold == -1) -- timeleft checks
         and data[3] and data[3] ~= "" -- buff has a name
         and data[4] and data[4] ~= "" -- buff has a texture
