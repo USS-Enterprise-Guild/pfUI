@@ -1044,12 +1044,13 @@ pfUI:RegisterModule("bags", "vanilla:tbc", function ()
                     scanner:SetBagItem(bag, slot)
                     local text = scanner:Text()
 
-                    local str = ""
+                    local parts = {}
                     for k, v in pairs(text) do
-                      str = str .. (v[1] or "") .. (v[2] or "")
+                      parts[#parts + 1] = v[1] or ""
+                      parts[#parts + 1] = v[2] or ""
                     end
 
-                    frame.search.db[itemLink] = strlower(str)
+                    frame.search.db[itemLink] = strlower(table.concat(parts))
                   end
 
                   if strfind(frame.search.db[itemLink], strlower(this:GetText()), 1, true) then
