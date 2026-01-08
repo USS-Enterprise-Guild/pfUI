@@ -116,6 +116,11 @@ pfUI:RegisterModule("castbar", "vanilla:tbc", function ()
           this.fadeout = nil
           this.endTime = endTime
 
+          -- clear timer text cache for new cast
+          this.lastCurTenths = nil
+          this.lastDelay = nil
+          this.maxStr = nil
+
           -- set texture
           if texture and this.showicon then
             local size = this:GetHeight()
@@ -148,11 +153,23 @@ pfUI:RegisterModule("castbar", "vanilla:tbc", function ()
         this.bar:SetValue(cur)
 
         if this.showtimer then
-          if this.delay and this.delay > 0 then
-            local delay = "|cffffaaaa" .. (channel and "-" or "+") .. round(this.delay,1) .. " |r "
-            this.bar.right:SetText(delay .. string.format("%.1f",cur) .. " / " .. round(max,1))
-          else
-            this.bar.right:SetText(string.format("%.1f",cur) .. " / " .. round(max,1))
+          -- only update text when displayed value changes (reduces string allocations)
+          local curTenths = math.floor(cur * 10)
+          if this.lastCurTenths ~= curTenths or this.lastDelay ~= this.delay then
+            this.lastCurTenths = curTenths
+            this.lastDelay = this.delay
+
+            -- cache max string since it doesn't change during cast
+            if not this.maxStr then
+              this.maxStr = round(max, 1)
+            end
+
+            if this.delay and this.delay > 0 then
+              local sign = channel and "-" or "+"
+              this.bar.right:SetText("|cffffaaaa" .. sign .. round(this.delay,1) .. " |r " .. string.format("%.1f",cur) .. " / " .. this.maxStr)
+            else
+              this.bar.right:SetText(string.format("%.1f",cur) .. " / " .. this.maxStr)
+            end
           end
         end
 
