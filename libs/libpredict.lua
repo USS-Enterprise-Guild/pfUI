@@ -317,16 +317,21 @@ function libpredict:UnitGetIncomingHeals(unit)
   local name = UnitName(unit)
 
   local sumheal = 0
-  if not heals[name] then
+  local unitheals = heals[name]
+  if not unitheals then
     return sumheal
-  else
-    for sender, amount in pairs(heals[name]) do
-      if amount[2] <= GetTime() then
-        heals[name][sender] = nil
-      else
-        sumheal = sumheal + amount[1]
-      end
+  end
+
+  -- use next() instead of pairs() to avoid iterator allocation
+  local now = GetTime()
+  local sender, amount = next(unitheals)
+  while sender do
+    if amount[2] <= now then
+      unitheals[sender] = nil
+    else
+      sumheal = sumheal + amount[1]
     end
+    sender, amount = next(unitheals, sender)
   end
   return sumheal
 end
@@ -335,14 +340,18 @@ function libpredict:UnitHasIncomingResurrection(unit)
   if not unit or not UnitName(unit) then return nil end
   local name = UnitName(unit)
 
-  if not ress[name] then
+  local unitress = ress[name]
+  if not unitress then
     return nil
-  else
-    for sender, val in pairs(ress[name]) do
-      if val == true then
-        return val
-      end
+  end
+
+  -- use next() instead of pairs() to avoid iterator allocation
+  local sender, val = next(unitress)
+  while sender do
+    if val == true then
+      return val
     end
+    sender, val = next(unitress, sender)
   end
   return nil
 end
