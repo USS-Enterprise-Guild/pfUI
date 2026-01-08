@@ -40,8 +40,15 @@ pfUI:RegisterModule("nameplates", "vanilla:tbc", function ()
   -- cache default border color
   local er, eg, eb, ea = GetStringColor(pfUI_config.appearance.border.color)
 
+  -- cache guid.."target" strings to avoid allocation in hot path
+  local guidTargetCache = {}
+
   local function GetCombatStateColor(guid)
-    local target = guid.."target"
+    local target = guidTargetCache[guid]
+    if not target then
+      target = guid .. "target"
+      guidTargetCache[guid] = target
+    end
     local color = false
 
     if UnitAffectingCombat("player") and UnitAffectingCombat(guid) and not UnitCanAssist("player", guid) then
@@ -813,8 +820,11 @@ pfUI:RegisterModule("nameplates", "vanilla:tbc", function ()
     local index = 1
 
     if C.nameplates["showdebuffs"] == "1" then
-      -- use concat instead of string.format to avoid format parsing overhead
-      local verify = (name or "") .. ":" .. (level or "")
+      -- only build verify string when needed (avoids allocation when unitstr exists and guessdebuffs disabled)
+      local verify
+      if C.nameplates["guessdebuffs"] == "1" or not unitstr then
+        verify = (name or "") .. ":" .. (level or "")
+      end
 
       -- update cached debuffs
       if C.nameplates["guessdebuffs"] == "1" and unitstr then
