@@ -6,6 +6,11 @@ pfUI:RegisterModule("panel", "vanilla:tbc", function()
   local font_size = C.panel.use_unitfonts == "1" and C.global.font_unit_size or C.global.font_size
   local rawborder, default_border = GetBorderSize("panels")
 
+  -- Helper for zero-padded time digits (avoids string.format overhead)
+  local function pad2(n)
+    return n < 10 and '0' .. n or tostring(n)
+  end
+
   do -- Widgets
     do -- Clock & Timer
       local widget = CreateFrame("Frame", "pfPanelWidgetClock",UIParent)
@@ -79,7 +84,7 @@ pfUI:RegisterModule("panel", "vanilla:tbc", function()
               h = h - 12
               noon = "PM"
             end
-            time = string.format("%.2d:%.2d %s", h, m, noon)
+            time = pad2(h) .. ':' .. pad2(m) .. ' ' .. noon
           else
             if secondsenabled then
               time = date("%I:%M:%S %p")
@@ -89,7 +94,7 @@ pfUI:RegisterModule("panel", "vanilla:tbc", function()
           end
         else
           if C.global.servertime == "1" then
-            time = string.format("%.2d:%.2d", h, m)
+            time = pad2(h) .. ':' .. pad2(m)
           else
             if secondsenabled then
               time = date("%H:%M:%S")
