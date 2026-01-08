@@ -19,6 +19,7 @@ if pfUI.api.libpredict then return end
 
 local senttarget
 local heals, ress, events, hots = {}, {}, {}, {}
+local nextEventTime = nil  -- track next expiration to avoid per-frame iteration
 
 local PRAYER_OF_HEALING
 do -- Prayer of Healing
@@ -96,12 +97,19 @@ libpredict:SetScript("OnEvent", function()
 end)
 
 libpredict:SetScript("OnUpdate", function()
-  -- update on timeout events
+  -- only check when we have events and have passed the next expiration time
+  if not nextEventTime or GetTime() < nextEventTime then return end
+
+  -- cleanup expired events and find next expiration
+  local newNextTime = nil
   for timestamp, targets in pairs(events) do
     if GetTime() >= timestamp then
       events[timestamp] = nil
+    elseif not newNextTime or timestamp < newNextTime then
+      newNextTime = timestamp
     end
   end
+  nextEventTime = newNextTime
 end)
 
 function libpredict:ParseComm(sender, msg)
@@ -208,6 +216,10 @@ end
 function libpredict:AddEvent(time, target)
   events[time] = events[time] or {}
   table.insert(events[time], target)
+  -- update next expiration time if this event is sooner
+  if not nextEventTime or time < nextEventTime then
+    nextEventTime = time
+  end
 end
 
 function libpredict:Heal(sender, target, amount, duration)
