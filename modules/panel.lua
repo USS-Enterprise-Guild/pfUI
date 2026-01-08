@@ -681,7 +681,7 @@ pfUI:RegisterModule("panel", "vanilla:tbc", function()
       }
     end
 
-    for i = 1, #panels do
+    for i = 1, table.getn(panels) do
       local p = panels[i]
       local frame, config = p[1], p[2]
       if config == entry then

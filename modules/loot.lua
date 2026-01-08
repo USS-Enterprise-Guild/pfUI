@@ -45,9 +45,9 @@ pfUI:RegisterModule("loot", "vanilla:tbc", function ()
         if C.loot.rollannounce == "1" then
           local parts = {}
           for i=1,to do
-            parts[#parts + 1] = i..":"..pfUI.loot.index_to_name[candidates[i]]
+            parts[table.getn(parts) + 1] = i..":"..pfUI.loot.index_to_name[candidates[i]]
             -- fit the maximum names in a single 255 char message (15)
-            if #parts == 15 or i == to then
+            if table.getn(parts) == 15 or i == to then
               QueueFunction(SendChatMessageWide, table.concat(parts, ", "))
               parts = {}
             end

@@ -768,12 +768,12 @@ pfUI:RegisterModule("gui", "vanilla:tbc", function ()
           -- build caption string using table.concat to avoid O(n²) allocation
           local parts = {}
           for x=table.getn(obj),1,-1 do
-            parts[#parts + 1] = "|cff33ffcc"
-            parts[#parts + 1] = obj[x].text:GetText()
-            parts[#parts + 1] = "|r » "
+            parts[table.getn(parts) + 1] = "|cff33ffcc"
+            parts[table.getn(parts) + 1] = obj[x].text:GetText()
+            parts[table.getn(parts) + 1] = "|r » "
           end
-          parts[#parts + 1] = "|cffffffff"
-          parts[#parts + 1] = obj[0]
+          parts[table.getn(parts) + 1] = "|cffffffff"
+          parts[table.getn(parts) + 1] = obj[0]
           local caption = table.concat(parts)
 
           -- build search entry button

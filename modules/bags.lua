@@ -314,7 +314,7 @@ pfUI:RegisterModule("bags", "vanilla:tbc", function ()
     local topspace = pfUI.bag.right.close:GetHeight() + default_border * 2
     local bottomspace = pfUI.panel and pfUI.panel.right:IsShown() and pfUI.panel.right:GetHeight() + default_border or 16 + default_border
 
-    for id = 1, #iterate do
+    for id = 1, table.getn(iterate) do
       local bag = iterate[id]
       if not pfUI.bags[bag] then
         pfUI.bags[bag] = CreateFrame("Frame", "pfBag" .. bag,  frame)
@@ -1046,8 +1046,8 @@ pfUI:RegisterModule("bags", "vanilla:tbc", function ()
 
                     local parts = {}
                     for k, v in pairs(text) do
-                      parts[#parts + 1] = v[1] or ""
-                      parts[#parts + 1] = v[2] or ""
+                      parts[table.getn(parts) + 1] = v[1] or ""
+                      parts[table.getn(parts) + 1] = v[2] or ""
                     end
 
                     frame.search.db[itemLink] = strlower(table.concat(parts))
