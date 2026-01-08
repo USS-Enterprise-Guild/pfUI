@@ -673,7 +673,8 @@ pfUI:RegisterModule("panel", "vanilla:tbc", function()
       }
     end
 
-    for i,p in pairs(panels) do
+    for i = 1, #panels do
+      local p = panels[i]
       local frame, config = p[1], p[2]
       if config == entry then
         frame.text:SetText(value)
