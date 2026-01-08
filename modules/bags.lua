@@ -125,9 +125,11 @@ pfUI:RegisterModule("bags", "vanilla:tbc", function ()
       pfUI.bag:UpdateItemLock()
     end
 
-    for bag in pairs(this.delay.UpdateBag) do
+    local bag = next(this.delay.UpdateBag)
+    while bag do
       this.delay.UpdateBag[bag] = nil
       pfUI.bag:UpdateBag(bag)
+      bag = next(this.delay.UpdateBag)
     end
   end)
 
