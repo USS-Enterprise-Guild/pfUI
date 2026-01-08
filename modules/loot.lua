@@ -583,6 +583,8 @@ pfUI:RegisterModule("loot", "vanilla:tbc", function ()
 
     if C.loot.autoresize == "1" then
       frame:SetScript("OnUpdate", function()
+        if (this.tick or 0) > GetTime() then return end
+        this.tick = GetTime() + 0.1
         pfUI.loot:UpdateLootFrame()
       end)
     end
