@@ -4,9 +4,11 @@ setfenv(1, pfUI:GetEnvironment())
 pfUI.uf = CreateFrame("Frame", nil, UIParent)
 pfUI.uf:SetScript("OnUpdate", function()
   if InCombatLockdown and not InCombatLockdown() then
-    for frame in pairs(pfUI.uf.delayed) do
+    local frame = next(pfUI.uf.delayed)
+    while frame do
       frame:UpdateVisibility()
       pfUI.uf.delayed[frame] = nil
+      frame = next(pfUI.uf.delayed)
     end
   end
 end)
