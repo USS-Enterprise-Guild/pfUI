@@ -324,8 +324,11 @@ pfUI:RegisterModule("nameplates", "vanilla:tbc", function ()
     -- propagate events to all nameplates
     if this.eventcache then
       this.eventcache = nil
-      for plate in pairs(registry) do
+      -- use next() instead of pairs() to avoid iterator allocation every frame
+      local plate = next(registry)
+      while plate do
         plate.eventcache = true
+        plate = next(registry, plate)
       end
     end
 
