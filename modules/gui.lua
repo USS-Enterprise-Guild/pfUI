@@ -1,5 +1,5 @@
 pfUI:RegisterModule("gui", "vanilla:tbc", function ()
-  local Reload, U, CreateConfig, CreateTabFrame, CreateArea, CreateGUIEntry, EntryUpdate
+  local Reload, U, CreateConfig, CreateTabFrame, CreateArea, CreateGUIEntry
 
   -- "searchDB" gets populated when CreateConfig is called. The table holds
   -- information about the title, its parent buttons and the frame itself:
@@ -29,21 +29,22 @@ pfUI:RegisterModule("gui", "vanilla:tbc", function ()
       end
     end})
 
-    function EntryUpdate()
+    -- Hover handlers using OnEnter/OnLeave instead of OnUpdate
+    -- This avoids running every frame for hundreds of config entries
+    local function EntryOnEnter()
       -- detect and skip during dropdowns
       local focus = GetMouseFocus()
       if focus and focus.parent and focus.parent.menu then
-        if this.over then
-          this.tex:Hide()
-          this.over = nil
-        end
         return
       end
-
-      if MouseIsOver(this) and not this.over then
+      if this.tex then
         this.tex:Show()
         this.over = true
-      elseif not MouseIsOver(this) and this.over then
+      end
+    end
+
+    local function EntryOnLeave()
+      if this.tex then
         this.tex:Hide()
         this.over = nil
       end
@@ -100,7 +101,8 @@ pfUI:RegisterModule("gui", "vanilla:tbc", function ()
       if not widget or (widget and widget ~= "button") then
 
         if widget ~= "header" then
-          frame:SetScript("OnUpdate", EntryUpdate)
+          frame:SetScript("OnEnter", EntryOnEnter)
+          frame:SetScript("OnLeave", EntryOnLeave)
           frame.tex = frame:CreateTexture(nil, "BACKGROUND")
           frame.tex:SetTexture(1,1,1,.05)
           frame.tex:SetAllPoints()
@@ -700,7 +702,8 @@ pfUI:RegisterModule("gui", "vanilla:tbc", function ()
       f:SetWidth(565)
       f:SetHeight(20)
       f:SetScript("OnClick", SearchEntryClick)
-      f:SetScript("OnUpdate", EntryUpdate)
+      f:SetScript("OnEnter", EntryOnEnter)
+      f:SetScript("OnLeave", EntryOnLeave)
 
       f.text = f:CreateFontString("Status", "LOW", "GameFontWhite")
       f.text:SetFont(pfUI.font_default, pfUI_config.global.font_size, "OUTLINE")
