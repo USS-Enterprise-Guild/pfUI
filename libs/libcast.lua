@@ -118,7 +118,8 @@ function libcast:AddAction(mob, spell, channel)
 
   if L["spells"][spell] ~= nil then
     local casttime = L["spells"][spell].t
-    local icon = L["spells"][spell].icon and string.format("%s%s", "Interface\\Icons\\", L["spells"][spell].icon) or nil
+    -- use concat instead of string.format to avoid format parsing overhead
+    local icon = L["spells"][spell].icon and ("Interface\\Icons\\" .. L["spells"][spell].icon) or nil
 
     -- add cast action to the database
     if not self.db[mob] then self.db[mob] = {} end
@@ -185,7 +186,8 @@ local mob, spell, icon, _
 libcast:SetScript("OnEvent", function()
   -- Fill database with player casts
   if event == "SPELLCAST_START" then
-    icon = L["spells"][arg1] and L["spells"][arg1].icon and string.format("%s%s", "Interface\\Icons\\", L["spells"][arg1].icon) or lastcasttex
+    -- use concat instead of string.format to avoid format parsing overhead
+    icon = L["spells"][arg1] and L["spells"][arg1].icon and ("Interface\\Icons\\" .. L["spells"][arg1].icon) or lastcasttex
     -- add cast action to the database
     this.db[player].cast = arg1
     this.db[player].rank = lastrank
@@ -222,7 +224,8 @@ libcast:SetScript("OnEvent", function()
     this.db[player].rank = lastrank
     this.db[player].start = GetTime()
     this.db[player].casttime = arg1
-    this.db[player].icon = L["spells"][arg2] and L["spells"][arg2].icon and string.format("%s%s", "Interface\\Icons\\", L["spells"][arg2].icon) or lastcasttex
+    -- use concat instead of string.format to avoid format parsing overhead
+    this.db[player].icon = L["spells"][arg2] and L["spells"][arg2].icon and ("Interface\\Icons\\" .. L["spells"][arg2].icon) or lastcasttex
     this.db[player].channel = true
     lastcasttex, lastrank = nil, nil
   elseif event == "SPELLCAST_CHANNEL_STOP" then
