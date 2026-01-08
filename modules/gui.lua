@@ -765,12 +765,16 @@ pfUI:RegisterModule("gui", "vanilla:tbc", function ()
       for name, obj in pairs(searchDB) do
         local title = obj[0] and strlower(obj[0])
         if strfind(title, search) then
-          -- build caption string
-          local caption = ""
+          -- build caption string using table.concat to avoid O(n²) allocation
+          local parts = {}
           for x=table.getn(obj),1,-1 do
-            caption = caption .. "|cff33ffcc" .. obj[x].text:GetText() .. "|r » "
+            parts[#parts + 1] = "|cff33ffcc"
+            parts[#parts + 1] = obj[x].text:GetText()
+            parts[#parts + 1] = "|r » "
           end
-          caption = caption .. "|cffffffff" .. obj[0]
+          parts[#parts + 1] = "|cffffffff"
+          parts[#parts + 1] = obj[0]
+          local caption = table.concat(parts)
 
           -- build search entry button
           scroll.results[i] = scroll.results[i] or CreateSearchEntry(scroll, i)
