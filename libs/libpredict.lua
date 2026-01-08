@@ -21,6 +21,12 @@ local senttarget
 local heals, ress, events, hots = {}, {}, {}, {}
 local nextEventTime = nil  -- track next expiration to avoid per-frame iteration
 
+-- reverse lookup tables to avoid nested pairs() iterations in HealStop/HealDelay/RessStop
+-- senderToHealTargets[sender] = {target1 = true, target2 = true, ...}
+-- senderToRessTargets[sender] = {target1 = true, target2 = true, ...}
+local senderToHealTargets = {}
+local senderToRessTargets = {}
+
 local PRAYER_OF_HEALING
 do -- Prayer of Healing
   local locales = {
@@ -230,6 +236,11 @@ function libpredict:Heal(sender, target, amount, duration)
   local timeout = duration/1000 + GetTime()
   heals[target] = heals[target] or {}
   heals[target][sender] = { amount, timeout }
+
+  -- maintain reverse lookup for O(1) HealStop/HealDelay
+  senderToHealTargets[sender] = senderToHealTargets[sender] or {}
+  senderToHealTargets[sender][target] = true
+
   libpredict:AddEvent(timeout, target)
 end
 
@@ -251,20 +262,26 @@ function libpredict:Hot(sender, target, spell, duration)
 end
 
 function libpredict:HealStop(sender)
-  for ttarget, t in pairs(heals) do
-    for tsender in pairs(heals[ttarget]) do
-      if sender == tsender then
-        heals[ttarget][tsender] = nil
+  -- use reverse lookup for O(1) access instead of nested pairs() iteration
+  local targets = senderToHealTargets[sender]
+  if targets then
+    for target in pairs(targets) do
+      if heals[target] then
+        heals[target][sender] = nil
       end
     end
+    senderToHealTargets[sender] = nil
   end
 end
 
 function libpredict:HealDelay(sender, delay)
   local delay = delay/1000
-  for target, t in pairs(heals) do
-    for tsender, amount in pairs(heals[target]) do
-      if sender == tsender then
+  -- use reverse lookup for O(1) access instead of nested pairs() iteration
+  local targets = senderToHealTargets[sender]
+  if targets then
+    for target in pairs(targets) do
+      local amount = heals[target] and heals[target][sender]
+      if amount then
         amount[2] = amount[2] + delay
         libpredict:AddEvent(amount[2], target)
       end
@@ -275,15 +292,22 @@ end
 function libpredict:Ress(sender, target)
   ress[target] = ress[target] or {}
   ress[target][sender] = true
+
+  -- maintain reverse lookup for O(1) RessStop
+  senderToRessTargets[sender] = senderToRessTargets[sender] or {}
+  senderToRessTargets[sender][target] = true
 end
 
 function libpredict:RessStop(sender)
-  for ttarget, t in pairs(ress) do
-    for tsender in pairs(ress[ttarget]) do
-      if sender == tsender then
-        ress[ttarget][tsender] = nil
+  -- use reverse lookup for O(1) access instead of nested pairs() iteration
+  local targets = senderToRessTargets[sender]
+  if targets then
+    for target in pairs(targets) do
+      if ress[target] then
+        ress[target][sender] = nil
       end
     end
+    senderToRessTargets[sender] = nil
   end
 end
 
