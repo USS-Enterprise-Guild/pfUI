@@ -16,8 +16,8 @@ pfUI:RegisterModule("pixelperfect", "vanilla:tbc", function ()
       local scale = GetCVar("uiScale")
       local use = GetCVar("useUiScale")
 
-      if use == 1 then
-        UIParent:SetScale(tonumber(use))
+      if use == "1" then
+        UIParent:SetScale(tonumber(scale))
       else
         UIParent:SetScale(.9)
       end
