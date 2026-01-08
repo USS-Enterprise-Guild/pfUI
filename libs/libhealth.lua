@@ -33,7 +33,8 @@ libhealth:SetScript("OnEvent", function()
   if event == "PLAYER_TARGET_CHANGED" then
     dmg, perc = 0, _G.UnitHealth("target")
     if UnitName("target") and UnitLevel("target") and _G.UnitHealthMax("target") == 100 then
-      target = string.format("%s:%d",UnitName("target"), UnitLevel("target"))
+      -- use concat instead of string.format to avoid allocation
+      target = UnitName("target") .. ":" .. UnitLevel("target")
     else
       target = nil
     end
@@ -72,7 +73,8 @@ local function GetUnitHealth(self, unitstr)
   end
 
   -- query the database for known values
-  dbstring = string.format("%s:%s", unit, level)
+  -- use concat instead of string.format to avoid format parsing overhead
+  dbstring = unit .. ":" .. level
   if mobdb[dbstring] and mobdb[dbstring][1] and mobdb[dbstring][2] > libhealth.reqdmg and (not mobdb[dbstring][3] or mobdb[dbstring][3] > libhealth.reqhit) then
     return ceil(mobdb[dbstring][1]/100*cur), mobdb[dbstring][1], true
   end
@@ -93,7 +95,8 @@ local function GetUnitHealthByName(self, unit, level, cur, max)
   end
 
   -- query the database for known values
-  dbstring = string.format("%s:%s", unit, level)
+  -- use concat instead of string.format to avoid format parsing overhead
+  dbstring = unit .. ":" .. level
   if mobdb[dbstring] and mobdb[dbstring][1] and mobdb[dbstring][2] > libhealth.reqdmg and (not mobdb[dbstring][3] or mobdb[dbstring][3] > libhealth.reqhit) then
     return ceil(mobdb[dbstring][1]/100*cur), mobdb[dbstring][1], true
   end
