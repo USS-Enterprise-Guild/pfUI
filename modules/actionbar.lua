@@ -758,17 +758,7 @@ pfUI:RegisterModule("actionbar", "vanilla:tbc", function ()
   local function BarsUpdate(self)
     self = self or this
 
-    -- update buttons whenever a button drag is assumed
-    AssumeButtonDrag()
-
-    if pfUI.unlock then
-      -- update all bars when entering unlock
-      if pfUI.unlock:IsShown() ~= unlock then
-        pfUI.bars:UpdateConfig()
-        unlock = pfUI.unlock:IsShown()
-      end
-    end
-
+    -- UNTHROTTLED: Event-driven updates need immediate response
     -- cache and clear event flags to allow single iteration
     local update_usable = eventcache["ACTIONBAR_UPDATE_USABLE"]
     local update_cooldown = eventcache["ACTIONBAR_UPDATE_COOLDOWN"]
@@ -801,7 +791,20 @@ pfUI:RegisterModule("actionbar", "vanilla:tbc", function ()
       updatecache[id] = nil
     end
 
-    if ( this.tick or .2) > GetTime() then return else this.tick = GetTime() + .2 end
+    -- THROTTLED: Per-frame operations that don't need 60fps
+    if (this.tick or 0) > GetTime() then return end
+    this.tick = GetTime() + 0.1
+
+    -- update buttons whenever a button drag is assumed
+    AssumeButtonDrag()
+
+    if pfUI.unlock then
+      -- update all bars when entering unlock
+      if pfUI.unlock:IsShown() ~= unlock then
+        pfUI.bars:UpdateConfig()
+        unlock = pfUI.unlock:IsShown()
+      end
+    end
 
     for id, button in pairs(buttoncache) do
       if button:IsShown() then ButtonRangeUpdate(button) end
