@@ -43,15 +43,14 @@ pfUI:RegisterModule("loot", "vanilla:tbc", function ()
       if quality >= tonumber(C.loot.rollannouncequal) then
         SendChatMessageWide(T["Random Rolling"].." "..GetLootSlotLink(slot))
         if C.loot.rollannounce == "1" then
-          local k,names = 1, ""
+          local parts = {}
           for i=1,to do
-            names = (k==1) and (i..":"..pfUI.loot.index_to_name[candidates[i]]) or (names..", "..i..":"..pfUI.loot.index_to_name[candidates[i]])
+            parts[#parts + 1] = i..":"..pfUI.loot.index_to_name[candidates[i]]
             -- fit the maximum names in a single 255 char message (15)
-            if i == to or k == 15 then
-              QueueFunction(SendChatMessageWide,names)
-              names = ""
+            if #parts == 15 or i == to then
+              QueueFunction(SendChatMessageWide, table.concat(parts, ", "))
+              parts = {}
             end
-            k = k<15 and k+1 or 1
           end
         end
       end
@@ -141,12 +140,12 @@ pfUI:RegisterModule("loot", "vanilla:tbc", function ()
     end
     local num_ties = table.getn(ties)
     if num_ties > 1 then
-      local names = ""
+      local parts = {}
       for i=1, num_ties do
-        names = i==1 and (names..ties[i].who) or (names..", "..ties[i].who)
+        parts[i] = ties[i].who
       end
       pfUI.loot:ClearRolls()
-      SendChatMessageWide(names.." "..T["Reroll"])
+      SendChatMessageWide(table.concat(parts, ", ").." "..T["Reroll"])
       pfUI.loot:RegisterEvent("CHAT_MSG_SYSTEM")
       pfUI.loot.monitorRolling = true
     end
