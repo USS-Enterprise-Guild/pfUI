@@ -81,7 +81,12 @@ function pfUI.api.RunOOC(func)
     frame = CreateFrame("Frame")
     frame:SetScript("OnUpdate", function()
       if InCombatLockdown and InCombatLockdown() then return end
-      for key, func in pairs(queue) do func(); queue[key] = nil end
+      local key, fn = next(queue)
+      while key do
+        fn()
+        queue[key] = nil
+        key, fn = next(queue)
+      end
     end)
   end
 
