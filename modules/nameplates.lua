@@ -718,7 +718,8 @@ pfUI:RegisterModule("nameplates", "vanilla:tbc", function ()
     end
 
     plate.name:SetText(GetNameString(name))
-    plate.level:SetText(string.format("%s%s", level, (elitestrings[elite] or "")))
+    -- use concat instead of string.format to avoid format parsing overhead
+    plate.level:SetText(level .. (elitestrings[elite] or ""))
 
     if guild and C.nameplates.showguildname == "1" then
       plate.guild:SetText(guild)
@@ -746,22 +747,23 @@ pfUI:RegisterModule("nameplates", "vanilla:tbc", function ()
       local setting = C.nameplates.hptextformat
       local hasdata = ( estimated or hpmax > 100 or (round(hpmax/100*hp) ~= hp) )
 
+      -- use concat instead of string.format to avoid format parsing overhead
       if setting == "curperc" and hasdata then
-        plate.health.text:SetText(string.format("%s | %s%%", Abbreviate(rhp), ceil(hp/hpmax*100)))
+        plate.health.text:SetText(Abbreviate(rhp) .. " | " .. ceil(hp/hpmax*100) .. "%")
       elseif setting == "cur" and hasdata then
-        plate.health.text:SetText(string.format("%s", Abbreviate(rhp)))
+        plate.health.text:SetText(Abbreviate(rhp))
       elseif setting == "curmax" and hasdata then
-        plate.health.text:SetText(string.format("%s - %s", Abbreviate(rhp), Abbreviate(rhpmax)))
+        plate.health.text:SetText(Abbreviate(rhp) .. " - " .. Abbreviate(rhpmax))
       elseif setting == "curmaxs" and hasdata then
-        plate.health.text:SetText(string.format("%s / %s", Abbreviate(rhp), Abbreviate(rhpmax)))
+        plate.health.text:SetText(Abbreviate(rhp) .. " / " .. Abbreviate(rhpmax))
       elseif setting == "curmaxperc" and hasdata then
-        plate.health.text:SetText(string.format("%s - %s | %s%%", Abbreviate(rhp), Abbreviate(rhpmax), ceil(hp/hpmax*100)))
+        plate.health.text:SetText(Abbreviate(rhp) .. " - " .. Abbreviate(rhpmax) .. " | " .. ceil(hp/hpmax*100) .. "%")
       elseif setting == "curmaxpercs" and hasdata then
-        plate.health.text:SetText(string.format("%s / %s | %s%%", Abbreviate(rhp), Abbreviate(rhpmax), ceil(hp/hpmax*100)))
+        plate.health.text:SetText(Abbreviate(rhp) .. " / " .. Abbreviate(rhpmax) .. " | " .. ceil(hp/hpmax*100) .. "%")
       elseif setting == "deficit" then
-        plate.health.text:SetText(string.format("-%s" .. (hasdata and "" or "%%"), Abbreviate(rhpmax - rhp)))
+        plate.health.text:SetText("-" .. Abbreviate(rhpmax - rhp) .. (hasdata and "" or "%"))
       else -- "percent" as fallback
-        plate.health.text:SetText(string.format("%s%%", ceil(hp/hpmax*100)))
+        plate.health.text:SetText(ceil(hp/hpmax*100) .. "%")
       end
     else
       plate.health.text:SetText()
@@ -808,7 +810,8 @@ pfUI:RegisterModule("nameplates", "vanilla:tbc", function ()
     local index = 1
 
     if C.nameplates["showdebuffs"] == "1" then
-      local verify = string.format("%s:%s", (name or ""), (level or ""))
+      -- use concat instead of string.format to avoid format parsing overhead
+      local verify = (name or "") .. ":" .. (level or "")
 
       -- update cached debuffs
       if C.nameplates["guessdebuffs"] == "1" and unitstr then
