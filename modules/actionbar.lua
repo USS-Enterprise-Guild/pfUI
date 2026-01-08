@@ -960,6 +960,9 @@ pfUI:RegisterModule("actionbar", "vanilla:tbc", function ()
     -- setup page switch frame
     local pageswitch = CreateFrame("Frame", "pfActionBarPageSwitch", UIParent)
     pageswitch:SetScript("OnUpdate", function()
+      if (this.tick or 0) > GetTime() then return end
+      this.tick = GetTime() + 0.05  -- 20 checks/sec
+
       -- switch actionbar page depending on meta key that is pressed
       if C.bars.pagemastershift == "1" and IsShiftKeyDown() then
         SwitchBar(shift)
