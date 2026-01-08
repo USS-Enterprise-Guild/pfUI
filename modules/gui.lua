@@ -886,11 +886,14 @@ pfUI:RegisterModule("gui", "vanilla:tbc", function ()
       },
       ["scaling"] = {
         "0:" .. T["Off"],
+        "1:" .. T["Auto (Recommended)"],
         "4:" .. T["Huge (PixelPerfect)"],
         "5:" .. T["Large"],
         "6:" .. T["Medium"],
         "7:" .. T["Small"],
-        "8:" .. T["Tiny (PixelPerfect)"],
+        "8:" .. T["Tiny (1080p)"],
+        "9:" .. T["Small (1440p)"],
+        "10:" .. T["Tiny (4K)"],
       },
       ["orientation"] = {
         "HORIZONTAL:" .. T["Horizontal"],
