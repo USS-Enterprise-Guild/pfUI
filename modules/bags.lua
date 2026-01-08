@@ -674,15 +674,19 @@ pfUI:RegisterModule("bags", "vanilla:tbc", function ()
 
   function pfUI.bag:UpdateItemLock()
     for bag=-2, 11 do
-      local bagsize = GetContainerNumSlots(bag)
-      if bag == -2 and pfUI.bag.showKeyring == true then bagsize = GetKeyRingSize() end
-      for slot=1, bagsize do
-        if pfUI.bags[bag] and pfUI.bags[bag].slots[slot] and pfUI.bags[bag].slots[slot].frame:IsShown() then
-          local _, _, locked, _ = GetContainerItemInfo(bag, slot)
-          if pfUI.bags[bag].slots[slot].locked ~= locked then
-            SetItemButtonDesaturated(pfUI.bags[bag].slots[slot].frame, locked, 0.5, 0.5, 0.5)
-            if pfUI.unusable then pfUI.unusable:UpdateSlot(bag, slot) end
-            pfUI.bags[bag].slots[slot].locked = locked
+      local bagdata = pfUI.bags[bag]
+      if bagdata then
+        local bagsize = GetContainerNumSlots(bag)
+        if bag == -2 and pfUI.bag.showKeyring == true then bagsize = GetKeyRingSize() end
+        for slot=1, bagsize do
+          local slotdata = bagdata.slots[slot]
+          if slotdata and slotdata.frame:IsShown() then
+            local _, _, locked = GetContainerItemInfo(bag, slot)
+            if slotdata.locked ~= locked then
+              SetItemButtonDesaturated(slotdata.frame, locked, 0.5, 0.5, 0.5)
+              if pfUI.unusable then pfUI.unusable:UpdateSlot(bag, slot) end
+              slotdata.locked = locked
+            end
           end
         end
       end
