@@ -769,14 +769,17 @@ pfUI:RegisterModule("actionbar", "vanilla:tbc", function ()
 
     -- single iteration for all event-driven updates (reduces iterator allocations)
     if update_usable or update_cooldown or update_state then
-      for id, button in pairs(buttoncache) do
+      local id, button = next(buttoncache)
+      while id do
         if update_usable then ButtonUsableUpdate(button) end
         if update_cooldown then ButtonCooldownUpdate(button) end
         if update_state then ButtonIsActiveUpdate(button) end
+        id, button = next(buttoncache, id)
       end
     end
 
-    for id in pairs(updatecache) do
+    local id = next(updatecache)
+    while id do
       -- run updates based on slot
       pfUI.bars.ButtonFullUpdate(buttoncache[id])
 
@@ -787,8 +790,9 @@ pfUI:RegisterModule("actionbar", "vanilla:tbc", function ()
         end
       end
 
-      -- clear update cache
+      -- clear update cache and advance iterator
       updatecache[id] = nil
+      id = next(updatecache)
     end
 
     -- THROTTLED: Per-frame operations that don't need 60fps
@@ -806,8 +810,10 @@ pfUI:RegisterModule("actionbar", "vanilla:tbc", function ()
       end
     end
 
-    for id, button in pairs(buttoncache) do
+    local id, button = next(buttoncache)
+    while id do
       if button:IsShown() then ButtonRangeUpdate(button) end
+      id, button = next(buttoncache, id)
     end
   end
 
