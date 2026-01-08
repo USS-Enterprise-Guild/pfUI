@@ -506,7 +506,7 @@ pfUI:RegisterModule("panel", "vanilla:tbc", function()
         local lowestPercent = 100
         widget.totalRep = 0
         wipe(widget.itemLines)
-        for _, id in pairs(widget.durability_slots) do
+        for _, id in ipairs(widget.durability_slots) do
           local hasItem, _, repCost = widget.scantip:SetInventoryItem("player", id)
           if (hasItem) then
             widget.totalRep = widget.totalRep + repCost
