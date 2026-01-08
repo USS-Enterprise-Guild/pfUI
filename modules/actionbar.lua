@@ -814,10 +814,44 @@ pfUI:RegisterModule("actionbar", "vanilla:tbc", function ()
       end
     end
 
-    local id, button = next(buttoncache)
-    while id do
+    -- cache and clear event flags to allow single iteration
+    local update_usable = eventcache["ACTIONBAR_UPDATE_USABLE"]
+    local update_cooldown = eventcache["ACTIONBAR_UPDATE_COOLDOWN"]
+    local update_state = eventcache["ACTIONBAR_UPDATE_STATE"]
+    eventcache["ACTIONBAR_UPDATE_USABLE"] = nil
+    eventcache["ACTIONBAR_UPDATE_COOLDOWN"] = nil
+    eventcache["ACTIONBAR_UPDATE_STATE"] = nil
+
+    -- single iteration for all event-driven updates (reduces iterator allocations)
+    if update_usable or update_cooldown or update_state then
+      for id, button in pairs(buttoncache) do
+        if update_usable then ButtonUsableUpdate(button) end
+        if update_cooldown then ButtonCooldownUpdate(button) end
+        if update_state then ButtonIsActiveUpdate(button) end
+      end
+    end
+
+    for id in pairs(updatecache) do
+      -- run updates based on slot
+      pfUI.bars.ButtonFullUpdate(buttoncache[id])
+
+      -- run updates on paging actionbar if required
+      for i=1,12 do
+        if pfUI.bars[1][i].id == id then
+          pfUI.bars.ButtonFullUpdate(pfUI.bars[1][i])
+        end
+      end
+
+      -- clear update cache
+      updatecache[id] = nil
+    end
+
+    local now = GetTime()
+    if (this.tick or 0) > now then return end
+    this.tick = now + .2
+
+    for id, button in pairs(buttoncache) do
       if button:IsShown() then ButtonRangeUpdate(button) end
-      id, button = next(buttoncache, id)
     end
   end
 
@@ -1678,7 +1712,9 @@ pfUI:RegisterModule("actionbar", "vanilla:tbc", function ()
 
       -- queue events to fire only once per second
       if not this.event then return end
-      if ( this.tick or 1) > GetTime() then return else this.tick = GetTime() + 1 end
+      local now = GetTime()
+      if (this.tick or 0) > now then return end
+      this.tick = now + 1
 
       -- scan for all reagent item counts
       for item in pairs(reagent_counts) do

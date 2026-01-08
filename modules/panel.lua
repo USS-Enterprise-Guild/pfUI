@@ -124,9 +124,11 @@ pfUI:RegisterModule("panel", "vanilla:tbc", function()
       local newTimerText = "|cffff3333 --- " .. T["NEW TIMER"] .. " ---"
       widget.timerFrame:SetScript("OnUpdate", function()
           -- add throttle to avoid running every frame
-          if ( this.tick or 0) > GetTime() then return else this.tick = GetTime() + 0.1 end
-          if not widget.timerFrame.Snapshot then widget.timerFrame.Snapshot = GetTime() end
-          widget.timerFrame.curTime = SecondsToTime(floor(GetTime() - widget.timerFrame.Snapshot))
+          local now = GetTime()
+          if (this.tick or 0) > now then return end
+          this.tick = now + 0.1
+          if not widget.timerFrame.Snapshot then widget.timerFrame.Snapshot = now end
+          widget.timerFrame.curTime = SecondsToTime(floor(now - widget.timerFrame.Snapshot))
           if widget.timerFrame.curTime ~= "" then
             widget.timerFrame.text:SetText(timerColor .. widget.timerFrame.curTime)
           else
@@ -470,7 +472,9 @@ pfUI:RegisterModule("panel", "vanilla:tbc", function()
       end)
 
       widget:SetScript("OnUpdate",function()
-        if ( this.tick or 60) > GetTime() then return else this.tick = GetTime() + 60 end
+        local now = GetTime()
+        if (this.tick or 0) > now then return end
+        this.tick = now + 60
         if GetGuildInfo("player") then GuildRoster() end
       end)
     end

@@ -127,13 +127,17 @@ pfUI:RegisterModule("mapcolors", function ()
   -- WorldMap
   Initialize('WorldMap')
   hooksecurefunc('WorldMapButton_OnUpdate', function()
-    if ( this.tick or .5) > GetTime() then return else this.tick = GetTime() + .5 end
+    local now = GetTime()
+    if (this.tick or 0) > now then return end
+    this.tick = now + .5
     UpdateUnitFrames('WorldMap')
   end)
 
   if C.appearance.worldmap.colornames == "1" then
     hooksecurefunc('WorldMapUnit_OnEnter', function()
-      if ( this.tick or .5) > GetTime() then return else this.tick = GetTime() + .5 end
+      local now = GetTime()
+    if (this.tick or 0) > now then return end
+    this.tick = now + .5
       UpdateUnitColors('WorldMap', WorldMapTooltip)
     end)
   end
@@ -143,13 +147,17 @@ pfUI:RegisterModule("mapcolors", function ()
     Initialize('BattlefieldMinimap')
 
     hooksecurefunc('BattlefieldMinimap_OnUpdate', function()
-      if ( this.tick or .5) > GetTime() then return else this.tick = GetTime() + .5 end
+      local now = GetTime()
+    if (this.tick or 0) > now then return end
+    this.tick = now + .5
       UpdateUnitFrames('BattlefieldMinimap')
     end)
 
     if C.appearance.worldmap.colornames == "1" then
       hooksecurefunc('BattlefieldMinimapUnit_OnEnter', function()
-        if ( this.tick or .5) > GetTime() then return else this.tick = GetTime() + .5 end
+        local now = GetTime()
+    if (this.tick or 0) > now then return end
+    this.tick = now + .5
         UpdateUnitColors('BattlefieldMinimap', GameTooltip)
       end)
     end

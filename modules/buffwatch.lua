@@ -144,10 +144,12 @@ pfUI:RegisterModule("buffwatch", "vanilla:tbc", function ()
   end
 
   local function StatusBarOnUpdate()
-    local remaining = this.endtime - GetTime()
+    local now = GetTime()
+    local remaining = this.endtime - now
     this.bar:SetValue(remaining > 0 and remaining or 0)
 
-    if ( this.tick or 1) > GetTime() then return else this.tick = GetTime() + .1 end
+    if (this.tick or 0) > now then return end
+    this.tick = now + .1
     this.time:SetText(remaining > 0 and GetColoredTimeString(remaining) or "")
   end
 
@@ -363,7 +365,9 @@ pfUI:RegisterModule("buffwatch", "vanilla:tbc", function ()
 
   -- Create a new Buff Bar
   local function BuffBarFrameOnUpdate()
-    if ( this.tick or 1) > GetTime() then return else this.tick = GetTime() + .4 end
+    local now = GetTime()
+    if (this.tick or 0) > now then return end
+    this.tick = now + .4
     RefreshBuffBarFrame(this)
     this:RefreshPosition()
   end

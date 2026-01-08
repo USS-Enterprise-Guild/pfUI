@@ -35,7 +35,9 @@ local glow2 = {
 
 local maxdurations = {}
 local function BuffOnUpdate()
-  if ( this.tick or 1) > GetTime() then return else this.tick = GetTime() + .2 end
+  local now = GetTime()
+  if (this.tick or 0) > now then return end
+  this.tick = now + .2
   local timeleft = GetPlayerBuffTimeLeft(GetPlayerBuff(PLAYER_BUFF_START_ID+this.id,"HELPFUL"))
   local texture = GetPlayerBuffTexture(GetPlayerBuff(PLAYER_BUFF_START_ID+this.id,"HELPFUL"))
   local start = 0
@@ -118,7 +120,9 @@ local function BuffOnClick()
 end
 
 local function DebuffOnUpdate()
-  if ( this.tick or 1) > GetTime() then return else this.tick = GetTime() + .2 end
+  local now = GetTime()
+  if (this.tick or 0) > now then return end
+  this.tick = now + .2
   local timeleft = GetPlayerBuffTimeLeft(GetPlayerBuff(PLAYER_BUFF_START_ID+this.id,"HARMFUL"))
   local texture = GetPlayerBuffTexture(GetPlayerBuff(PLAYER_BUFF_START_ID+this.id,"HARMFUL"))
   local start = 0

@@ -420,7 +420,9 @@ pfUI:RegisterModule("addonbuttons", "vanilla:tbc", function ()
     end
 
     -- throttle updates to once per 5 seconds
-    if ( this.tick or 1) > GetTime() then return else this.tick = GetTime() + 5 end
+    local now = GetTime()
+    if (this.tick or 0) > now then return end
+    this.tick = now + 5
 
     -- reload/rescan minimap buttons
     pfUI.addonbuttons:ProcessButtons()
