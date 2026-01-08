@@ -112,13 +112,18 @@ pfUI:RegisterModule("panel", "vanilla:tbc", function()
       widget.timerFrame.text:SetFontObject(GameFontWhite)
       widget.timerFrame.text:SetFont(font, font_size, "OUTLINE")
       widget.timerFrame.text:SetAllPoints(widget.timerFrame)
+      -- pre-cache constant strings to avoid concat in hot path
+      local timerColor = "|c33cccccc"
+      local newTimerText = "|cffff3333 --- " .. T["NEW TIMER"] .. " ---"
       widget.timerFrame:SetScript("OnUpdate", function()
+          -- add throttle to avoid running every frame
+          if ( this.tick or 0) > GetTime() then return else this.tick = GetTime() + 0.1 end
           if not widget.timerFrame.Snapshot then widget.timerFrame.Snapshot = GetTime() end
           widget.timerFrame.curTime = SecondsToTime(floor(GetTime() - widget.timerFrame.Snapshot))
           if widget.timerFrame.curTime ~= "" then
-            widget.timerFrame.text:SetText("|c33cccccc" .. widget.timerFrame.curTime)
+            widget.timerFrame.text:SetText(timerColor .. widget.timerFrame.curTime)
           else
-            widget.timerFrame.text:SetText("|cffff3333 --- " .. T["NEW TIMER"] .. " ---")
+            widget.timerFrame.text:SetText(newTimerText)
           end
         end)
 
@@ -156,6 +161,9 @@ pfUI:RegisterModule("panel", "vanilla:tbc", function()
     do -- FPS & Lag
       local widget = CreateFrame("Frame", "pfPanelWidgetLag", UIParent)
       local lag, fps, laghex, fpshex, _
+      -- pre-cache constant strings to avoid concat in hot path
+      local fpsLabel = " " .. T["fps"] .. " & "
+      local msLabel = " " .. T["ms"]
       widget.Tooltip = function()
         local active = 0
         GameTooltip:ClearLines()
@@ -207,7 +215,7 @@ pfUI:RegisterModule("panel", "vanilla:tbc", function()
           lag = laghex .. lag .. "|r"
         end
 
-        pfUI.panel:OutputPanel("fps", fps .. " " .. T["fps"] .. " & " .. lag .. " " .. T["ms"], widget.Tooltip, widget.Click)
+        pfUI.panel:OutputPanel("fps", fps .. fpsLabel .. lag .. msLabel, widget.Tooltip, widget.Click)
       end)
     end
 
