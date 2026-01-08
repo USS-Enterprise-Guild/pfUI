@@ -1677,6 +1677,16 @@ function pfUI.uf:RefreshUnit(unit, component)
         end
       end
 
+      -- collect all debuff types in ONE pass instead of nested loops
+      -- this reduces from O(debuff_types * 16) to O(16 + debuff_types)
+      local activeDebuffTypes = {}
+      for i = 1, 16 do
+        local _, _, dtype = UnitDebuff(unitstr, i)
+        if dtype then
+          activeDebuffTypes[dtype] = true
+        end
+      end
+
       for _, debuff in pairs(unit.dispellable) do
         indicator[debuff] = indicator[debuff] or CreateFrame("Frame", nil, indicator)
         indicator[debuff]:SetParent(indicator)
@@ -1717,14 +1727,8 @@ function pfUI.uf:RefreshUnit(unit, component)
           indicator[debuff].disp = indicator.disp
         end
 
-        indicator[debuff].visible = nil
-
-        for i=1,16 do
-          local _, _, dtype = UnitDebuff(unitstr, i)
-          if dtype == debuff then
-            indicator[debuff].visible = true
-          end
-        end
+        -- use pre-collected debuff types instead of nested loop
+        indicator[debuff].visible = activeDebuffTypes[debuff]
 
         if indicator[debuff].visible then
           indicator[debuff]:Show()
