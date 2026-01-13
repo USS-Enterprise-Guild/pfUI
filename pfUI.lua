@@ -298,7 +298,8 @@ pfUI:SetScript("OnEvent", function()
     pfUI.version.major = tonumber(major) or 1
     pfUI.version.minor = tonumber(minor) or 2
     -- extract numeric prefix from fix (handles "4-1701-1" -> 4)
-    pfUI.version.fix   = tonumber(string.match(fix or "", "^(%d+)")) or 0
+    local _, _, fixnum = string.find(fix or "", "^(%d+)")
+    pfUI.version.fix   = tonumber(fixnum) or 0
     pfUI.version.string = pfUI.version.major .. "." .. pfUI.version.minor .. "." .. pfUI.version.fix
 
     -- use "Modern" as default profile on a fresh install
