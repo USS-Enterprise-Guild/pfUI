@@ -222,8 +222,7 @@ pfUI:RegisterModule("share", "vanilla:tbc", function ()
     local bit_pattern = ''
     local decoded = ''
 
-    to_decode = gsub(to_decode,"\n", "")
-    to_decode = gsub(to_decode," ", "")
+    to_decode = gsub(to_decode,"%s", "")
 
     for i = 1, string.len(unpadded) do
       local char = string.sub(to_decode, i, i)
@@ -365,7 +364,9 @@ pfUI:RegisterModule("share", "vanilla:tbc", function ()
           f.readButton.text:SetText(T["Decode"])
           f.readButton.func = function()
             local uncompressed = decompress(dec(f.scroll.text:GetText()))
-            f.scroll.text:SetText(uncompressed)
+            if uncompressed then
+              f.scroll.text:SetText(uncompressed)
+            end
           end
         end
       end)
