@@ -294,13 +294,15 @@ pfUI:SetScript("OnEvent", function()
 
   if arg1 == pfUI.name then
     -- read pfUI version from .toc file
-    local major, minor, fix = pfUI.api.strsplit(".", tostring(GetAddOnMetadata(pfUI.name, "Version")))
+    local fullversion = tostring(GetAddOnMetadata(pfUI.name, "Version"))
+    local major, minor, fix = pfUI.api.strsplit(".", fullversion)
     pfUI.version.major = tonumber(major) or 1
     pfUI.version.minor = tonumber(minor) or 2
     -- extract numeric prefix from fix (handles "4-1701-1" -> 4)
     local _, _, fixnum = string.find(fix or "", "^(%d+)")
     pfUI.version.fix   = tonumber(fixnum) or 0
-    pfUI.version.string = pfUI.version.major .. "." .. pfUI.version.minor .. "." .. pfUI.version.fix
+    -- use full version string from TOC, fallback to constructed if empty
+    pfUI.version.string = fullversion ~= "" and fullversion or (pfUI.version.major .. "." .. pfUI.version.minor .. "." .. pfUI.version.fix)
 
     -- use "Modern" as default profile on a fresh install
     if pfUI.api.isempty(pfUI_init) and pfUI.api.isempty(pfUI_config) then
