@@ -322,17 +322,35 @@ pfUI:RegisterModule("share", "vanilla:tbc", function ()
         this:GetParent():UpdateScrollChildRect()
         this:GetParent():UpdateScrollState()
 
-        local _, error = loadstring(f.scroll.text:GetText())
-        if error or string.gsub(this:GetText(), " ", "") == "" then
-          f.loadButton:Disable()
-          f.loadButton.text:SetTextColor(1,.5,.5,1)
-        else
-          f.loadButton:Enable()
-          f.loadButton.text:SetTextColor(.5,1,.5,1)
+        local text = f.scroll.text:GetText()
+        local isEmpty = string.gsub(text, " ", "") == ""
+
+        -- check if raw text is valid Lua
+        local _, rawError = loadstring(text)
+        local isValidLua = not rawError and not isEmpty
+
+        -- if not valid Lua, check if it's valid encoded config
+        local isValidEncoded = false
+        local trydec = dec(text)
+        if not isValidLua and trydec and trydec ~= "" then
+          local uncompressed = decompress(trydec)
+          if uncompressed then
+            local _, decError = loadstring(uncompressed)
+            isValidEncoded = not decError
+          end
         end
 
-        local trydec = dec(this:GetText())
-        if string.gsub(this:GetText(), " ", "") == "" then
+        -- update import button state
+        if isValidLua or isValidEncoded then
+          f.loadButton:Enable()
+          f.loadButton.text:SetTextColor(.5,1,.5,1)
+        else
+          f.loadButton:Disable()
+          f.loadButton.text:SetTextColor(1,.5,.5,1)
+        end
+
+        -- update decode/encode button
+        if isEmpty then
           f.readButton.text:SetText(T["N/A"])
           f.readButton:Disable()
         elseif not trydec or trydec == "" then
@@ -400,8 +418,24 @@ pfUI:RegisterModule("share", "vanilla:tbc", function ()
       f.loadButton.text:SetFont(pfUI.font_default, pfUI_config.global.font_size, "OUTLINE")
       f.loadButton.text:SetText(T["Import"])
       f.loadButton:SetScript("OnClick", function()
-        local ImportConfig, error = loadstring(f.scroll.text:GetText())
-        if not error and f.scroll.text:GetText() ~= "" then
+        local text = f.scroll.text:GetText()
+        if text == "" then return end
+
+        -- try raw Lua first
+        local ImportConfig, error = loadstring(text)
+
+        -- if raw fails, try decoding
+        if error then
+          local decoded = dec(text)
+          if decoded then
+            local uncompressed = decompress(decoded)
+            if uncompressed then
+              ImportConfig, error = loadstring(uncompressed)
+            end
+          end
+        end
+
+        if ImportConfig and not error then
           ImportConfig()
           pfUI:LoadConfig()
           CreateQuestionDialog(T["Some settings need to reload the UI to take effect.\nDo you want to reloadUI now?"], ReloadUI)
