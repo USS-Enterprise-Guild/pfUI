@@ -1,11 +1,25 @@
 pfUI:RegisterModule("share", "vanilla:tbc", function ()
+  -- helper to get sorted keys for deterministic serialization
+  local function sorted_keys(tbl)
+    local keys = {}
+    for k in pairs(tbl) do
+      table.insert(keys, k)
+    end
+    table.sort(keys, function(a, b)
+      -- handle mixed types by comparing as strings
+      return tostring(a) < tostring(b)
+    end)
+    return keys
+  end
+
   local function serialize(tbl, comp, name, ignored, spacing)
     local spacing = spacing or ""
     local match = nil
     local tname = ( spacing == "" and "" or "[\"" ) .. name .. ( spacing == "" and "" or "\"]" )
     local str = spacing .. tname .. " = {\n"
 
-    for k, v in pairs(tbl) do
+    for _, k in ipairs(sorted_keys(tbl)) do
+      local v = tbl[k]
       if not ( ignored[k] and spacing == "" ) and ( not comp or not comp[k] or comp[k] ~= tbl[k] ) then
         if type(v) == "table" then
           local result = serialize(tbl[k], comp and comp[k], k, ignored, spacing .. "  ")
