@@ -61,6 +61,8 @@ function pfUI:LoadConfig()
   pfUI:UpdateConfig("gui",        nil,           "reloadmarker",     "0")
   pfUI:UpdateConfig("gui",        nil,           "showdisabled",     "0")
 
+  pfUI:UpdateConfig("chatframes", nil,           nil,                nil)
+
   pfUI:UpdateConfig("buffs",      nil,           "buffs",            "1")
   pfUI:UpdateConfig("buffs",      nil,           "debuffs",          "1")
   pfUI:UpdateConfig("buffs",      nil,           "weapons",          "1")
