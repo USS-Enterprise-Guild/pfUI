@@ -577,6 +577,69 @@ pfUI:RegisterModule("chat", "vanilla:tbc", function ()
     pfUI.chat:RefreshChat()
   end
 
+  function pfUI.chat.SaveChatConfig()
+    C.chatframes = {}
+
+    for i = 1, NUM_CHAT_WINDOWS do
+      local frame = _G["ChatFrame" .. i]
+      local name, fontSize, r, g, b, alpha, shown, locked, docked, uninteractable = GetChatWindowInfo(i)
+
+      -- skip unconfigured frames (no name and not visible)
+      local shouldSave = true
+      if (not name or name == "") and (not frame or not frame:IsVisible()) then
+        shouldSave = false
+      end
+
+      if shouldSave then
+        local frameData = {
+          name = name or "",
+          fontSize = fontSize or 12,
+          r = r or 0,
+          g = g or 0,
+          b = b or 0,
+          alpha = alpha or 0,
+          shown = shown and "1" or "0",
+          locked = locked and "1" or "0",
+          docked = docked and "1" or "0",
+          messages = {},
+          channels = {},
+        }
+
+        -- save message groups
+        local messages = { GetChatWindowMessages(i) }
+        for _, msg in ipairs(messages) do
+          if msg and msg ~= "" then
+            table.insert(frameData.messages, msg)
+          end
+        end
+
+        -- save channels
+        local channels = { GetChatWindowChannels(i) }
+        -- GetChatWindowChannels returns: name1, zone1, name2, zone2, ...
+        for j = 1, table.getn(channels), 2 do
+          local chanName = channels[j]
+          if chanName and chanName ~= "" then
+            table.insert(frameData.channels, chanName)
+          end
+        end
+
+        -- save position and size
+        local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint()
+        frameData.position = {
+          point = point,
+          relativeTo = relativeTo and relativeTo:GetName() or nil,
+          relativePoint = relativePoint,
+          xOfs = xOfs,
+          yOfs = yOfs,
+        }
+        frameData.width = frame:GetWidth()
+        frameData.height = frame:GetHeight()
+
+        C.chatframes[i] = frameData
+      end
+    end
+  end
+
   pfUI.chat:SetScript("OnEvent", function()
     -- set the default chat
     FCF_SelectDockFrame(SELECTED_CHAT_FRAME)
