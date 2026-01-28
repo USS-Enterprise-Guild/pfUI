@@ -1466,6 +1466,9 @@ pfUI:RegisterModule("gui", "vanilla:tbc", function ()
         if C.global.profile and pfUI_profiles[C.global.profile] then
           CreateQuestionDialog(T["Save current settings to profile"] .. " '|cff33ffcc" .. C.global.profile .. "|r'?", function()
             if pfUI_profiles[C.global.profile] then
+              if pfUI.chat and pfUI.chat.SaveChatConfig then
+                pfUI.chat.SaveChatConfig()
+              end
               pfUI_profiles[C.global.profile] = CopyTable(C)
             end
             this:GetParent():Hide()
