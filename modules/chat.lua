@@ -716,6 +716,11 @@ pfUI:RegisterModule("chat", "vanilla:tbc", function ()
     -- set the default chat
     FCF_SelectDockFrame(SELECTED_CHAT_FRAME)
 
+    -- restore chat configuration from profile if available
+    if pfUI.chat.LoadChatConfig then
+      pfUI.chat.LoadChatConfig()
+    end
+
     -- update all chat settings
     pfUI.chat:RefreshChat()
     FCF_DockUpdate()
