@@ -1487,6 +1487,9 @@ pfUI:RegisterModule("gui", "vanilla:tbc", function ()
           else
             profile = (string.gsub(profile,"^%s*(.-)%s*$", "%1"))
             if profile and profile ~= "" then
+              if pfUI.chat and pfUI.chat.SaveChatConfig then
+                pfUI.chat.SaveChatConfig()
+              end
               pfUI_profiles[profile] = CopyTable(C)
               this:GetParent():Hide()
             end
