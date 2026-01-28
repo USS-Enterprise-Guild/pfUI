@@ -640,6 +640,78 @@ pfUI:RegisterModule("chat", "vanilla:tbc", function ()
     end
   end
 
+  function pfUI.chat.LoadChatConfig()
+    if not C.chatframes or not next(C.chatframes) then
+      return
+    end
+
+    for i, frameData in pairs(C.chatframes) do
+      local frame = _G["ChatFrame" .. i]
+
+      -- create frame if it doesn't exist (for frames 4+)
+      if not frame and i > 2 then
+        FCF_OpenNewWindow(frameData.name or ("Chat " .. i))
+        frame = _G["ChatFrame" .. i]
+      end
+
+      if frame then
+        -- set window properties
+        FCF_SetWindowName(frame, frameData.name or "")
+        FCF_SetWindowColor(frame, frameData.r or 0, frameData.g or 0, frameData.b or 0)
+        FCF_SetWindowAlpha(frame, frameData.alpha or 0)
+        FCF_SetChatWindowFontSize(nil, frame, frameData.fontSize or 12)
+
+        if frameData.locked == "1" then
+          FCF_SetLocked(frame, 1)
+        else
+          FCF_SetLocked(frame, nil)
+        end
+
+        -- handle docking
+        if frameData.docked == "1" then
+          FCF_DockFrame(frame)
+        else
+          FCF_UnDockFrame(frame)
+        end
+
+        -- clear and restore message groups
+        ChatFrame_RemoveAllMessageGroups(frame)
+        if frameData.messages then
+          for _, msg in ipairs(frameData.messages) do
+            ChatFrame_AddMessageGroup(frame, msg)
+          end
+        end
+
+        -- clear and restore channels
+        ChatFrame_RemoveAllChannels(frame)
+        if frameData.channels then
+          for _, chan in ipairs(frameData.channels) do
+            ChatFrame_AddChannel(frame, chan)
+          end
+        end
+
+        -- restore position and size (for undocked frames)
+        if frameData.docked ~= "1" and frameData.position then
+          frame:ClearAllPoints()
+          local pos = frameData.position
+          local parent = pos.relativeTo and _G[pos.relativeTo] or UIParent
+          frame:SetPoint(pos.point or "BOTTOMLEFT", parent, pos.relativePoint or "BOTTOMLEFT", pos.xOfs or 0, pos.yOfs or 0)
+        end
+
+        if frameData.width then
+          frame:SetWidth(frameData.width)
+        end
+        if frameData.height then
+          frame:SetHeight(frameData.height)
+        end
+
+        frame:SetUserPlaced(true)
+      end
+    end
+
+    FCF_DockUpdate()
+  end
+
   pfUI.chat:SetScript("OnEvent", function()
     -- set the default chat
     FCF_SelectDockFrame(SELECTED_CHAT_FRAME)
