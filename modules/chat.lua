@@ -623,15 +623,17 @@ pfUI:RegisterModule("chat", "vanilla:tbc", function ()
           end
         end
 
-        -- save position and size
-        local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint()
-        frameData.position = {
-          point = point,
-          relativeTo = relativeTo and relativeTo:GetName() or nil,
-          relativePoint = relativePoint,
-          xOfs = xOfs,
-          yOfs = yOfs,
-        }
+        -- save position and size (with safety checks)
+        if frame:GetNumPoints() > 0 then
+          local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint()
+          frameData.position = {
+            point = point,
+            relativeTo = (relativeTo and type(relativeTo) == "table" and relativeTo.GetName) and relativeTo:GetName() or nil,
+            relativePoint = relativePoint,
+            xOfs = xOfs,
+            yOfs = yOfs,
+          }
+        end
         frameData.width = frame:GetWidth()
         frameData.height = frame:GetHeight()
 
