@@ -578,70 +578,20 @@ pfUI:RegisterModule("chat", "vanilla:tbc", function ()
   end
 
   function pfUI.chat.SaveChatConfig()
+    -- Minimal version for debugging - just save basic info for ChatFrame1
     C.chatframes = {}
 
-    for i = 1, NUM_CHAT_WINDOWS do
-      local frame = _G["ChatFrame" .. i]
-      local name, fontSize, r, g, b, alpha, shown, locked, docked, uninteractable = GetChatWindowInfo(i)
+    local frame = ChatFrame1
+    if not frame then return end
 
-      -- skip if frame doesn't exist or is unconfigured (no name and not visible)
-      local shouldSave = true
-      if not frame then
-        shouldSave = false
-      elseif (not name or name == "") and not frame:IsVisible() then
-        shouldSave = false
-      end
+    local name, fontSize, r, g, b, alpha, shown, locked, docked = GetChatWindowInfo(1)
 
-      if shouldSave then
-        local frameData = {
-          name = name or "",
-          fontSize = fontSize or 12,
-          r = r or 0,
-          g = g or 0,
-          b = b or 0,
-          alpha = alpha or 0,
-          shown = shown and "1" or "0",
-          locked = locked and "1" or "0",
-          docked = docked and "1" or "0",
-          messages = {},
-          channels = {},
-        }
-
-        -- save message groups
-        local messages = { GetChatWindowMessages(i) }
-        for _, msg in ipairs(messages) do
-          if msg and msg ~= "" then
-            table.insert(frameData.messages, msg)
-          end
-        end
-
-        -- save channels
-        local channels = { GetChatWindowChannels(i) }
-        -- GetChatWindowChannels returns: name1, zone1, name2, zone2, ...
-        for j = 1, table.getn(channels), 2 do
-          local chanName = channels[j]
-          if chanName and chanName ~= "" then
-            table.insert(frameData.channels, chanName)
-          end
-        end
-
-        -- save position and size (with safety checks)
-        if frame:GetNumPoints() > 0 then
-          local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint()
-          frameData.position = {
-            point = point,
-            relativeTo = (relativeTo and type(relativeTo) == "table" and relativeTo.GetName) and relativeTo:GetName() or nil,
-            relativePoint = relativePoint,
-            xOfs = xOfs,
-            yOfs = yOfs,
-          }
-        end
-        frameData.width = frame:GetWidth()
-        frameData.height = frame:GetHeight()
-
-        C.chatframes[i] = frameData
-      end
-    end
+    C.chatframes[1] = {
+      name = name or "General",
+      fontSize = fontSize or 12,
+      messages = {},
+      channels = {},
+    }
   end
 
   function pfUI.chat.LoadChatConfig()
