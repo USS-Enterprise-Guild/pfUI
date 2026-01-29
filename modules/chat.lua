@@ -584,9 +584,11 @@ pfUI:RegisterModule("chat", "vanilla:tbc", function ()
       local frame = _G["ChatFrame" .. i]
       local name, fontSize, r, g, b, alpha, shown, locked, docked, uninteractable = GetChatWindowInfo(i)
 
-      -- skip unconfigured frames (no name and not visible)
+      -- skip if frame doesn't exist or is unconfigured (no name and not visible)
       local shouldSave = true
-      if (not name or name == "") and (not frame or not frame:IsVisible()) then
+      if not frame then
+        shouldSave = false
+      elseif (not name or name == "") and not frame:IsVisible() then
         shouldSave = false
       end
 
