@@ -800,8 +800,9 @@ pfUI:RegisterModule("actionbar", "vanilla:tbc", function ()
     end
 
     -- THROTTLED: Per-frame operations that don't need 60fps
-    if (this.tick or 0) > GetTime() then return end
-    this.tick = GetTime() + 0.1
+    local now = GetTime()
+    if (this.tick or 0) > now then return end
+    this.tick = now + 0.1
 
     -- update buttons whenever a button drag is assumed
     AssumeButtonDrag()
@@ -814,46 +815,7 @@ pfUI:RegisterModule("actionbar", "vanilla:tbc", function ()
       end
     end
 
-    -- cache and clear event flags to allow single iteration
-    local update_usable = eventcache["ACTIONBAR_UPDATE_USABLE"]
-    local update_cooldown = eventcache["ACTIONBAR_UPDATE_COOLDOWN"]
-    local update_state = eventcache["ACTIONBAR_UPDATE_STATE"]
-    eventcache["ACTIONBAR_UPDATE_USABLE"] = nil
-    eventcache["ACTIONBAR_UPDATE_COOLDOWN"] = nil
-    eventcache["ACTIONBAR_UPDATE_STATE"] = nil
-
-    -- single iteration for all event-driven updates (reduces iterator allocations)
-    if update_usable or update_cooldown or update_state then
-      local id, button = next(buttoncache)
-      while id do
-        if update_usable then ButtonUsableUpdate(button) end
-        if update_cooldown then ButtonCooldownUpdate(button) end
-        if update_state then ButtonIsActiveUpdate(button) end
-        id, button = next(buttoncache, id)
-      end
-    end
-
-    local id = next(updatecache)
-    while id do
-      -- run updates based on slot
-      pfUI.bars.ButtonFullUpdate(buttoncache[id])
-
-      -- run updates on paging actionbar if required
-      for i=1,12 do
-        if pfUI.bars[1][i].id == id then
-          pfUI.bars.ButtonFullUpdate(pfUI.bars[1][i])
-        end
-      end
-
-      -- clear update cache and advance iterator
-      updatecache[id] = nil
-      id = next(updatecache)
-    end
-
-    local now = GetTime()
-    if (this.tick or 0) > now then return end
-    this.tick = now + .2
-
+    -- update range display for all visible buttons
     local id, button = next(buttoncache)
     while id do
       if button:IsShown() then ButtonRangeUpdate(button) end
