@@ -582,64 +582,60 @@ pfUI:RegisterModule("chat", "vanilla:tbc", function ()
 
     for i = 1, NUM_CHAT_WINDOWS do
       local frame = _G["ChatFrame" .. i]
-      local name, fontSize, r, g, b, alpha, shown, locked, docked, uninteractable = GetChatWindowInfo(i)
+      if frame then
+        local name, fontSize, r, g, b, alpha, shown, locked, docked = GetChatWindowInfo(i)
 
-      -- skip if frame doesn't exist or is unconfigured (no name and not visible)
-      local shouldSave = true
-      if not frame then
-        shouldSave = false
-      elseif (not name or name == "") and not frame:IsVisible() then
-        shouldSave = false
-      end
-
-      if shouldSave then
-        local frameData = {
-          name = name or "",
-          fontSize = fontSize or 12,
-          r = r or 0,
-          g = g or 0,
-          b = b or 0,
-          alpha = alpha or 0,
-          shown = shown and "1" or "0",
-          locked = locked and "1" or "0",
-          docked = docked and "1" or "0",
-          messages = {},
-          channels = {},
-        }
-
-        -- save message groups
-        local messages = { GetChatWindowMessages(i) }
-        for _, msg in ipairs(messages) do
-          if msg and msg ~= "" then
-            table.insert(frameData.messages, msg)
-          end
-        end
-
-        -- save channels
-        local channels = { GetChatWindowChannels(i) }
-        -- GetChatWindowChannels returns: name1, zone1, name2, zone2, ...
-        for j = 1, table.getn(channels), 2 do
-          local chanName = channels[j]
-          if chanName and chanName ~= "" then
-            table.insert(frameData.channels, chanName)
-          end
-        end
-
-        -- save position and size (with safety checks)
-        if frame:GetNumPoints() > 0 then
-          local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint()
-          frameData.position = {
-            point = point,
-            relativeTo = (relativeTo and type(relativeTo) == "table" and relativeTo.GetName) and relativeTo:GetName() or nil,
-            relativePoint = relativePoint,
-            xOfs = xOfs,
-            yOfs = yOfs,
+        -- only save frames that are shown, docked, or have a name and are visible
+        if shown or docked or (name and name ~= "" and frame:IsVisible()) then
+          local frameData = {
+            name = name or "",
+            fontSize = fontSize or 12,
+            r = r or 0,
+            g = g or 0,
+            b = b or 0,
+            alpha = alpha or 0,
+            shown = shown and "1" or "0",
+            locked = locked and "1" or "0",
+            docked = docked and "1" or "0",
+            messages = {},
+            channels = {},
           }
-        end
-        frameData.width = frame:GetWidth()
-        frameData.height = frame:GetHeight()
 
-        C.chatframes[i] = frameData
+          -- save message groups from frame's Lua-side table (avoids C API crash)
+          if frame.messageTypeList then
+            for _, msg in pairs(frame.messageTypeList) do
+              if msg and msg ~= "" then
+                table.insert(frameData.messages, msg)
+              end
+            end
+          end
+
+          -- save channels
+          local channels = { GetChatWindowChannels(i) }
+          -- GetChatWindowChannels returns: name1, zone1, name2, zone2, ...
+          for j = 1, table.getn(channels), 2 do
+            local chanName = channels[j]
+            if chanName and chanName ~= "" then
+              table.insert(frameData.channels, chanName)
+            end
+          end
+
+          -- save position and size (with safety checks)
+          if frame:GetNumPoints() > 0 then
+            local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint()
+            frameData.position = {
+              point = point,
+              relativeTo = (relativeTo and type(relativeTo) == "table" and relativeTo.GetName) and relativeTo:GetName() or nil,
+              relativePoint = relativePoint,
+              xOfs = xOfs,
+              yOfs = yOfs,
+            }
+          end
+          frameData.width = frame:GetWidth()
+          frameData.height = frame:GetHeight()
+
+          C.chatframes[i] = frameData
+        end
       end
     end
   end
@@ -663,7 +659,7 @@ pfUI:RegisterModule("chat", "vanilla:tbc", function ()
         FCF_SetWindowName(frame, frameData.name or "")
         FCF_SetWindowColor(frame, frameData.r or 0, frameData.g or 0, frameData.b or 0)
         FCF_SetWindowAlpha(frame, frameData.alpha or 0)
-        FCF_SetChatWindowFontSize(nil, frame, frameData.fontSize or 12)
+        FCF_SetChatWindowFontSize(frame, frameData.fontSize or 12)
 
         if frameData.locked == "1" then
           FCF_SetLocked(frame, 1)
