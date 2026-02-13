@@ -470,6 +470,11 @@ pfUI:RegisterModule("share", "vanilla:tbc", function ()
       f.exportButton.text:SetFont(pfUI.font_default, pfUI_config.global.font_size, "OUTLINE")
       f.exportButton.text:SetText(T["Export"])
       f.exportButton:SetScript("OnClick", function()
+        -- capture current chat frame state before export
+        if pfUI.chat and pfUI.chat.SaveChatConfig then
+          pfUI.chat.SaveChatConfig()
+        end
+
         -- generate a default config
         local myconfig = CopyTable(pfUI_config)
         _G.pfUI_config = {}
