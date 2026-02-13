@@ -610,16 +610,6 @@ pfUI:RegisterModule("chat", "vanilla:tbc", function ()
             end
           end
 
-          -- save channels
-          local channels = { GetChatWindowChannels(i) }
-          -- GetChatWindowChannels returns: name1, zone1, name2, zone2, ...
-          for j = 1, table.getn(channels), 2 do
-            local chanName = channels[j]
-            if chanName and chanName ~= "" then
-              table.insert(frameData.channels, chanName)
-            end
-          end
-
           -- save position and size (with safety checks)
           if frame:GetNumPoints() > 0 then
             local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint()
