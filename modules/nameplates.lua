@@ -828,13 +828,34 @@ pfUI:RegisterModule("nameplates", "vanilla:tbc", function ()
 
     -- update debuffs
     local index = 1
+    local debuff_scan = C.nameplates["showdebuffs"] == "1"
 
-    if C.nameplates["showdebuffs"] == "1" then
+    -- throttle debuff scanning on non-target plates (0.2s) to reduce tooltip overhead
+    if debuff_scan and not target and plate.debufftick and plate.debufftick > GetTime() then
+      debuff_scan = false
+    end
+
+    -- early out: skip expensive debuff scan for units without player debuffs
+    if debuff_scan and C.nameplates.selfdebuff == "1" and unitstr
+       and not libdebuff:HasPlayerDebuffs(name, tonumber(level)) then
+      debuff_scan = false
+      -- hide stale debuff icons since we know there are none
+      for i = 1, 16 do
+        if plate.debuffs[i] then plate.debuffs[i]:Hide() end
+      end
+    end
+
+    if debuff_scan then
+      plate.debufftick = GetTime() + .2
+
       -- only build verify string when needed (avoids allocation when unitstr exists and guessdebuffs disabled)
       local verify
       if C.nameplates["guessdebuffs"] == "1" or not unitstr then
         verify = (name or "") .. ":" .. (level or "")
       end
+
+      -- invalidate own debuff cache so this plate gets a fresh scan
+      libdebuff:InvalidateOwnDebuffCache()
 
       -- update cached debuffs
       if C.nameplates["guessdebuffs"] == "1" and unitstr then

@@ -285,25 +285,67 @@ function libdebuff:UnitDebuff(unit, id)
   return effect, rank, texture, stacks, dtype, duration, timeleft, caster
 end
 
-local cache = {}
+-- Pre-allocated cache for UnitOwnDebuff: scan once per unit, index O(1) thereafter
+local owndebuff_results = {}
+local owndebuff_count = 0
+local owndebuff_unit = nil
+local owndebuff_seen = {}
+
+for i = 1, 16 do owndebuff_results[i] = {} end
+
+function libdebuff:InvalidateOwnDebuffCache()
+  owndebuff_unit = nil
+end
+
 function libdebuff:UnitOwnDebuff(unit, id)
-  -- clean cache
-  for k, v in pairs(cache) do cache[k] = nil end
+  -- scan once per unit, cache filtered results for subsequent id lookups
+  if owndebuff_unit ~= unit then
+    owndebuff_unit = unit
+    owndebuff_count = 0
 
-  -- detect own debuffs
-  local count = 1
-  for i=1,16 do
-    local effect, rank, texture, stacks, dtype, duration, timeleft, caster = libdebuff:UnitDebuff(unit, i)
-    if effect and not cache[effect] and caster and caster == "player" then
-      cache[effect] = true
+    -- clear seen table (next-based iteration avoids pairs closure on some runtimes)
+    for k in next, owndebuff_seen do owndebuff_seen[k] = nil end
 
-      if count == id then
-        return effect, rank, texture, stacks, dtype, duration, timeleft, caster
-      else
-        count = count + 1
+    for i = 1, 16 do
+      local effect, rank, texture, stacks, dtype, duration, timeleft, caster = libdebuff:UnitDebuff(unit, i)
+      if effect and caster and caster == "player" and not owndebuff_seen[effect] then
+        owndebuff_seen[effect] = true
+        owndebuff_count = owndebuff_count + 1
+        local r = owndebuff_results[owndebuff_count]
+        r.effect = effect
+        r.rank = rank
+        r.texture = texture
+        r.stacks = stacks
+        r.dtype = dtype
+        r.duration = duration
+        r.timeleft = timeleft
+        r.caster = caster
       end
     end
   end
+
+  if id <= owndebuff_count then
+    local r = owndebuff_results[id]
+    return r.effect, r.rank, r.texture, r.stacks, r.dtype, r.duration, r.timeleft, r.caster
+  end
+end
+
+function libdebuff:HasPlayerDebuffs(unitname, unitlevel)
+  local data = libdebuff.objects[unitname]
+  if not data then return false end
+
+  local leveldata = data[unitlevel or 0]
+  if not leveldata and data[0] then leveldata = data[0] end
+  if not leveldata then return false end
+
+  local now = GetTime()
+  for _, info in pairs(leveldata) do
+    if info.caster == "player" and info.start and info.duration
+       and info.start + info.duration > now then
+      return true
+    end
+  end
+  return false
 end
 
 -- add libdebuff to pfUI API

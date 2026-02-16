@@ -59,7 +59,12 @@ end
 libdebuff = {
   ["UnitDebuff"] = function(self, a1, a2, a3)
     return _G.UnitDebuff(a1,a2,a3)
-  end
+  end,
+  ["UnitOwnDebuff"] = function(self, unit, id)
+    return _G.UnitDebuff(unit, id)
+  end,
+  ["InvalidateOwnDebuffCache"] = function() end,
+  ["HasPlayerDebuffs"] = function() return true end,
 }
 
 -- map reveal positions
