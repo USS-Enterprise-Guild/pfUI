@@ -58,10 +58,12 @@ pfUI:RegisterSkin("Options - Video", "vanilla:tbc", function ()
     this:SetPoint("CENTER", 0, 0)
   end)
 
-  OptionsFrameHeader:SetTexture("")
+  if OptionsFrameHeader then OptionsFrameHeader:SetTexture("") end
   local OptionsFrameHeaderText = GetNoNameObject(OptionsFrame, "FontString", "ARTWORK", VIDEOOPTIONS_MENU)
-  OptionsFrameHeaderText:ClearAllPoints()
-  OptionsFrameHeaderText:SetPoint("TOP", OptionsFrame.backdrop, "TOP", 0, -10)
+  if OptionsFrameHeaderText then
+    OptionsFrameHeaderText:ClearAllPoints()
+    OptionsFrameHeaderText:SetPoint("TOP", OptionsFrame.backdrop, "TOP", 0, -10)
+  end
 
   CreateBackdrop(OptionsFrameDisplay, nil, true, .75)
   CreateBackdrop(OptionsFrameWorldAppearance, nil, true, .75)
