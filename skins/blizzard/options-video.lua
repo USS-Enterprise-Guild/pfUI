@@ -58,7 +58,7 @@ pfUI:RegisterSkin("Options - Video", "vanilla:tbc", function ()
     this:SetPoint("CENTER", 0, 0)
   end)
 
-  if OptionsFrameHeader then OptionsFrameHeader:SetTexture("") end
+  if OptionsFrameHeader and OptionsFrameHeader.SetTexture then OptionsFrameHeader:SetTexture("") end
   local OptionsFrameHeaderText = GetNoNameObject(OptionsFrame, "FontString", "ARTWORK", VIDEOOPTIONS_MENU)
   if OptionsFrameHeaderText then
     OptionsFrameHeaderText:ClearAllPoints()
