@@ -1,4 +1,6 @@
 pfUI:RegisterSkin("Options - Video", "vanilla:tbc", function ()
+  if not OptionsFrame then return end
+
   local rawborder, border = GetBorderSize()
   local bpad = rawborder > 1 and border - GetPerfectPixel() or GetPerfectPixel()
 
@@ -10,11 +12,13 @@ pfUI:RegisterSkin("Options - Video", "vanilla:tbc", function ()
 
     for i=1, MAX_SLIDERS do
       local slider = _G["OptionsFrameSlider"..i]
-      local shift = 0
-      if i == 4 or i == 5 or i == 7 or i == 8 or i == 10 or i == 11 then shift = 10 end
-      local point, anchor, anchorPoint, x, y = slider:GetPoint()
-      slider:ClearAllPoints()
-      slider:SetPoint(point, anchor, anchorPoint, x, y - shift)
+      if slider then
+        local shift = 0
+        if i == 4 or i == 5 or i == 7 or i == 8 or i == 10 or i == 11 then shift = 10 end
+        local point, anchor, anchorPoint, x, y = slider:GetPoint()
+        slider:ClearAllPoints()
+        slider:SetPoint(point, anchor, anchorPoint, x, y - shift)
+      end
     end
 
     hooksecurefunc("OptionsFrame_Load", function()
@@ -32,13 +36,15 @@ pfUI:RegisterSkin("Options - Video", "vanilla:tbc", function ()
 
     for i=1, MAX_SLIDERS do
       local slider = _G["OptionsFrameSlider"..i]
-      local shift = 0
-      if i == 1 or i == 6 then shift = 4
-      elseif i == 4 or i == 8 then shift = 10
+      if slider then
+        local shift = 0
+        if i == 1 or i == 6 then shift = 4
+        elseif i == 4 or i == 8 then shift = 10
+        end
+        local point, anchor, anchorPoint, x, y = slider:GetPoint()
+        slider:ClearAllPoints()
+        slider:SetPoint(point, anchor, anchorPoint, x, y - shift)
       end
-      local point, anchor, anchorPoint, x, y = slider:GetPoint()
-      slider:ClearAllPoints()
-      slider:SetPoint(point, anchor, anchorPoint, x, y - shift)
     end
   end
 
@@ -74,7 +80,8 @@ pfUI:RegisterSkin("Options - Video", "vanilla:tbc", function ()
   SkinDropDown(OptionsFrameMultiSampleDropDown)
 
   for i=1, MAX_SLIDERS do
-    SkinSlider(_G["OptionsFrameSlider"..i])
+    local slider = _G["OptionsFrameSlider"..i]
+    if slider then SkinSlider(slider) end
   end
 
   for i=1, MAX_CHECKBOXES do

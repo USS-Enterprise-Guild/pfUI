@@ -1365,6 +1365,7 @@ end
 -- 'arg1'       [string]
 -- return object
 function pfUI.api.GetNoNameObject(frame, objtype, layer, arg1, arg2)
+  if not frame then return nil end
   local arg1 = arg1 and gsub(arg1, "([%+%-%*%(%)%?%[%]%^])", "%%%1")
   local arg2 = arg2 and gsub(arg2, "([%+%-%*%(%)%?%[%]%^])", "%%%1")
 
