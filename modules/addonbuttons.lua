@@ -155,7 +155,7 @@ pfUI:RegisterModule("addonbuttons", "vanilla:tbc", function ()
 
   local function ScanForButtons()
     FindButtons(Minimap)
-    FindButtons(MinimapBackdrop)
+    if MinimapBackdrop then FindButtons(MinimapBackdrop) end
   end
 
   local function SetupMainFrame()
@@ -215,7 +215,7 @@ pfUI:RegisterModule("addonbuttons", "vanilla:tbc", function ()
   local parent
   local function GetTopFrame(frame)
     parent = frame:GetParent()
-    if not parent or parent == Minimap or parent == MinimapBackdrop or parent == UIParent then
+    if not parent or parent == Minimap or (MinimapBackdrop and parent == MinimapBackdrop) or parent == UIParent then
       return frame
     else
       return GetTopFrame(parent)

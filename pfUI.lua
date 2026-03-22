@@ -316,14 +316,16 @@ pfUI:SetScript("OnEvent", function()
     -- load modules
     for _, m in pairs(this.modules) do
       if not ( pfUI_config["disabled"] and pfUI_config["disabled"][m]  == "1" ) then
-        pfUI:LoadModule(m)
+        local ok, err = pcall(pfUI.LoadModule, pfUI, m)
+        if not ok then error(err) end
       end
     end
 
     -- load skins
     for _, s in pairs(this.skins) do
       if not ( pfUI_config["disabled"] and pfUI_config["disabled"]["skin_" .. s]  == "1" ) then
-        pfUI:LoadSkin(s)
+        local ok, err = pcall(pfUI.LoadSkin, pfUI, s)
+        if not ok then error(err) end
       end
     end
 
