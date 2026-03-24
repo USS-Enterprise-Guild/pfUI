@@ -29,13 +29,20 @@ pfUI:RegisterSkin("Options - Sound", "vanilla:tbc", function ()
     NUM_CHECKBOXES = 8
     NUM_SLIDERS = 4
 
-    SoundOptionsFrameOkay:ClearAllPoints()
-    SoundOptionsFrameOkay:SetPoint("RIGHT", SoundOptionsFrameCancel, "LEFT", -2*bpad, 0)
-    SoundOptionsFrameSlider1:ClearAllPoints()
-    SoundOptionsFrameSlider1:SetPoint("TOPRIGHT", SoundOptionsFrame, "TOPRIGHT", -18, -43)
+    if SoundOptionsFrameOkay then
+      SoundOptionsFrameOkay:ClearAllPoints()
+      SoundOptionsFrameOkay:SetPoint("RIGHT", SoundOptionsFrameCancel, "LEFT", -2*bpad, 0)
+    end
+    if SoundOptionsFrameSlider1 then
+      SoundOptionsFrameSlider1:ClearAllPoints()
+      SoundOptionsFrameSlider1:SetPoint("TOPRIGHT", SoundOptionsFrame, "TOPRIGHT", -18, -43)
+    end
     for i=2, NUM_SLIDERS do
-      _G["SoundOptionsFrameSlider"..i]:ClearAllPoints()
-      _G["SoundOptionsFrameSlider"..i]:SetPoint("TOP", _G["SoundOptionsFrameSlider"..i-1], "BOTTOM", 0, -30)
+      local slider = _G["SoundOptionsFrameSlider"..i]
+      if slider then
+        slider:ClearAllPoints()
+        slider:SetPoint("TOP", _G["SoundOptionsFrameSlider"..i-1], "BOTTOM", 0, -30)
+      end
     end
   end
 
