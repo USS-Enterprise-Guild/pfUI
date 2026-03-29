@@ -1,5 +1,5 @@
 ## Interface: 11200
-## Title: |cff33ffccpf|cffffffffUI |cffaaaaaa[USS Enterprise Edition]
+## Title: |cff33ffccpf|cffffffffUI |cff00ffff[USS Enterprise Edition]|r
 ## Author: Shagu
 ## Notes: A complete user interface replacement.
 ## Notes-ruRU: Полная замена пользовательского интерфейса.
